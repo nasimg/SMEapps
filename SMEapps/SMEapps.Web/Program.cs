@@ -1,5 +1,6 @@
 using Microsoft.FluentUI.AspNetCore.Components;
 using SMEapps.Shared.Services;
+using SMEapps.Web.Client.Services.SStore;
 using SMEapps.Web.Components;
 using SMEapps.Web.Services;
 
@@ -11,8 +12,17 @@ builder.Services.AddRazorComponents()
     .AddInteractiveWebAssemblyComponents();
 builder.Services.AddFluentUIComponents();
 
+var apiBaseUrl = builder.Configuration["ApiBaseUrl"];
+
 // Add device-specific services used by the SMEapps.Shared project
 builder.Services.AddSingleton<IFormFactor, FormFactor>();
+builder.Services.AddScoped<ISStore, SStore>();
+
+builder.Services.AddHttpClient("ApiClient", client =>
+{
+    client.BaseAddress = new Uri(apiBaseUrl);
+
+});
 
 var app = builder.Build();
 

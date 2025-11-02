@@ -10,13 +10,14 @@ namespace SMEapps.Shared.Model
     public class LoginModel
     {
         [Required(ErrorMessage = "Username is required")]
+        [DataType(DataType.EmailAddress)]
         [EmailAddress]
-        public string email { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Password is required")]
         [DataType(DataType.Password)]
-        [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$", ErrorMessage = "Password must be at least 8 characters long and contain at least one small or capital letter, one simble and one number.")]
-        public string password { get; set; } = string.Empty;
+        [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$", ErrorMessage = "Invalid Password!")]
+        public string Password { get; set; } = string.Empty;
     }
 
 }
