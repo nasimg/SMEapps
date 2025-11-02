@@ -45,7 +45,12 @@
                                  TextFieldType="TextFieldType.Password"
                                  Style="width:100%; margin-bottom:1rem;" />
                 <ValidationMessage For="@(() => Model.Password)" />
-
+                <FluentTextField @bind-Value="Model.ConfirmPassword"
+                                 Label="Confirm Password"
+                                 Required="true"
+                                 TextFieldType="TextFieldType.Password"
+                                 Style="width:100%; margin-bottom:1rem;" />
+                <ValidationMessage For="@(() => Model.ConfirmPassword)" />
                
             </FluentGridItem>
         </FluentGrid>
@@ -56,4 +61,5 @@
             </FluentButton>
         </div>
     </EditForm>
+    <FluentToastProvider />
 </FluentCard>

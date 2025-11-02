@@ -16,18 +16,24 @@ namespace SMEapps.Shared.Identity
         [Inject] private NavigationManager NavManager { get; set; } = default!;
         [Inject] private IToastService Toast { get; set; } = default!;
 
-        private HttpClient ApiClient => HttpClientFactory.CreateClient("ApiClient");
+        private HttpClient ApiClient => ClientFactory.CreateClient("ApiClient");
 
         private async Task HandleSubmit()
         {
+            
             try
             {
-                
+                if (Model.Password != Model.ConfirmPassword)
+                {
+                    Toast.ShowError("Passwords do not match!");
+                    return;
+                }
 
                 var requestBody = new
                 {
                     email = Model.Email,
                     password = Model.Password,
+                    //confirmPassword = Model.ConfirmPassword,
                     phoneNumber = Model.PhoneNumber,
                     roleName = "user",
                     confirmUrl = "https://localhost:7187"
@@ -37,22 +43,22 @@ namespace SMEapps.Shared.Identity
 
                 if (response.IsSuccessStatusCode)
                 {
-                    ToastService.ShowSuccess(
+                    Toast.ShowSuccess(
                         title: "Registration successful!",
-                        timeout: 5000
+                        timeout: 2000
                     );
 
-                    Navigation.NavigateTo("/identity/login");
+                    NavManager.NavigateTo("/identity/login");
                 }
                 else
                 {
                     var error = await response.Content.ReadAsStringAsync();
-                    ToastService.ShowError($"Registration failed: {error}");
+                    Toast.ShowError($"Registration failed: {error}");
                 }
             }
             catch (Exception ex)
             {
-                ToastService.ShowError($"Error: {ex.Message}");
+                Toast.ShowError($"Error: {ex.Message}");
             }
         }
     }
