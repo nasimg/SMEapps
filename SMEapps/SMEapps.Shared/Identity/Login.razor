@@ -9,10 +9,8 @@
             <h1>Login into Application</h1>
             <hr />
             <DataAnnotationsValidator />
-            <ValidationSummary />
             <div style="margin-bottom: 1rem;">
                 <FluentTextField Label="Username"
-                                 Required="true"
                                  Placeholder="Enter your username"
                                  Style="width:100%" />
                 <ValidationMessage For="@(() => loginModel.email)" />
@@ -22,7 +20,6 @@
                 <FluentTextField Label="Password"
                                  @bind-Value="loginModel.password"
                                  Type="password"
-                                 Required="true"
                                  Placeholder="Enter your password"
                                  Style="width:100%" />
                 <ValidationMessage For="@(() => loginModel.password)" />
