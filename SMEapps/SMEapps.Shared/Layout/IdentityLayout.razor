@@ -1,0 +1,39 @@
+﻿@inherits LayoutComponentBase
+
+<FluentLayout Class="identiy-container">
+    @* <FluentHeader Style="text-align:center; font-size:2rem; font-weight:bold; background:#fff;">
+        SME
+    </FluentHeader> *@
+    <FluentBodyContent Class="identity-layout">
+        <FluentCard Class="identity-card">
+            @Body
+        </FluentCard>
+        <FluentDialogProvider />
+    </FluentBodyContent>
+</FluentLayout>
+
+<style>
+    .identiy-container {
+        min-height: 100vh;
+        vertical-align: middle;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: linear-gradient(135deg, #f5f6fa 0%, #e3e9f7 100%);
+    }
+    .identity-layout {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: inherit;
+        justify-content: center;
+        align-items: center;
+        background: #f5f6fa;
+    }
+    .identity-card {
+        width: 100%;
+        padding: 2rem 1.5rem;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+        border-radius: 16px;
+        background: #fff;
+    }
+</style>

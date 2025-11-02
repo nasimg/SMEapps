@@ -1,0 +1,43 @@
+﻿@page "/identity/login"
+@layout IdentityLayout
+
+<div style="display: flex; justify-content: center; align-items: center; min-height: 100vh;">
+    <EditForm Model="@loginModel"
+              OnValidSubmit="HandleValidSubmit"
+              OnInvalidSubmit="HandleInvalidSubmit">
+        <FluentCard Class="identity-card">
+            <h1>Login into Application</h1>
+            <hr />
+            <DataAnnotationsValidator />
+            <div style="margin-bottom: 1rem;">
+                <FluentTextField Label="Username"
+                                 Placeholder="Enter your username"
+                                 Style="width:100%" />
+                <ValidationMessage For="@(() => loginModel.email)" />
+            </div>
+
+            <div style="margin-bottom: 1rem;">
+                <FluentTextField Label="Password"
+                                 @bind-Value="loginModel.password"
+                                 Type="password"
+                                 Placeholder="Enter your password"
+                                 Style="width:100%" />
+                <ValidationMessage For="@(() => loginModel.password)" />
+            </div>
+
+            <FluentButton Appearance=Appearance.Accent Type="ButtonType.Submit" >
+                Login
+            </FluentButton>
+            <div style="display: flex; justify-content: space-between; margin-top: 1rem;">
+                <a href="/identity/register" style="text-decoration: none;">Register</a>
+                <a href="/identity/forgot" style="text-decoration: none;">Forgot Password?</a>
+            </div>
+            @if (!string.IsNullOrEmpty(errorMessage))
+            {
+                <div style="color:@color; margin-top:1rem;">@errorMessage</div>
+            }
+        </FluentCard>
+
+    </EditForm>
+</div>
+

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.14.36623.8 d17.14
+VisualStudioVersion = 17.14.36623.8
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SMEapps", "SMEapps\SMEapps\SMEapps.csproj", "{AD822CA4-6C49-4DDD-931D-9E5C31E87200}"
 EndProject
@@ -19,6 +19,7 @@ Global
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{AD822CA4-6C49-4DDD-931D-9E5C31E87200}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{AD822CA4-6C49-4DDD-931D-9E5C31E87200}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AD822CA4-6C49-4DDD-931D-9E5C31E87200}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
 		{AD822CA4-6C49-4DDD-931D-9E5C31E87200}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AD822CA4-6C49-4DDD-931D-9E5C31E87200}.Release|Any CPU.Build.0 = Release|Any CPU
 		{0A462A1B-7C62-4979-B9D9-6313ED9A6BE9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
