@@ -1,5 +1,6 @@
 ﻿@page "/identity/login"
 @layout IdentityLayout
+@using System.ComponentModel.DataAnnotations
 
 <div style="display: flex; justify-content: center; align-items: center; min-height: 100vh;">
     <EditForm Model="@loginModel"
@@ -13,7 +14,7 @@
                 <FluentTextField Label="Username"
                                  Placeholder="Enter your username"
                                  Style="width:100%" />
-                <ValidationMessage For="@(() => loginModel.email)" />
+                <ValidationMessage For="@(() => loginModel.email)" class="validation-error" />
             </div>
 
             <div style="margin-bottom: 1rem;">
@@ -22,7 +23,7 @@
                                  Type="password"
                                  Placeholder="Enter your password"
                                  Style="width:100%" />
-                <ValidationMessage For="@(() => loginModel.password)" />
+                <ValidationMessage For="@(() => loginModel.password)" class="validation-error" />
             </div>
 
             <FluentButton Appearance=Appearance.Accent Type="ButtonType.Submit" >
