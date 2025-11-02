@@ -17,6 +17,7 @@ var apiBaseUrl = builder.Configuration["ApiBaseUrl"];
 // Add device-specific services used by the SMEapps.Shared project
 builder.Services.AddSingleton<IFormFactor, FormFactor>();
 builder.Services.AddScoped<ISStore, SStore>();
+builder.Services.AddTransient<AuthHeaderHandler>();
 
 builder.Services.AddHttpClient("ApiClient", client =>
 {

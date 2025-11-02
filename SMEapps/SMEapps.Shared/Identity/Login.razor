@@ -2,10 +2,16 @@
 @layout IdentityLayout
 @using System.ComponentModel.DataAnnotations
 @inject IHttpClientFactory httpClientFactory
+@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.FluentUI.AspNetCore.Components
+@inject AuthenticationStateProvider AuthProvider
 
 <div style="display: flex; justify-content: center; align-items: center; min-height: 100vh;">
     <EditForm Model="@loginModel"
-              OnValidSubmit="HandleValidSubmit">
+              OnValidSubmit="HandleValidSubmit"
+              FormName="login"
+              EditContext="@editContext">
         <FluentCard Class="identity-card">
             <h1>Login into Application</h1>
             <hr />

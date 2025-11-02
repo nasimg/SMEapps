@@ -1,0 +1,58 @@
+﻿@page "/identity/logout"
+@layout IdentityLayout
+@using SMEapps.Shared.Layout
+@using SMEapps.Shared.Services
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.FluentUI.AspNetCore.Components
+@inject AuthenticationStateProvider AuthProvider
+@inject ISStore SStore
+@* @inject IDataCacheService DataCache *@
+@inject NavigationManager NavigationManager
+@inject IDialogService DialogService
+
+<div>
+    <FluentCard>
+        <h2>Logout From Appliction</h2>
+        <FluentButton Appearance="Appearance.Accent" @onclick="ConfirmLogout">
+            Logout
+        </FluentButton>
+    </FluentCard>
+</div>
+
+
+@code {
+    bool? canceled;
+    private async Task ConfirmLogout()
+    {
+        var dialog = await DialogService.ShowConfirmationAsync("Do you want to logout?", "Yes", "No", "Confirmation for logout");
+        var result = await dialog.Result;
+        canceled = result.Cancelled;
+        if (!canceled.HasValue || !canceled.Value)
+        {
+            // Use reflection to call LogoutAsync if available
+            var logoutMethod = AuthProvider.GetType().GetMethod("LogoutAsync");
+            if (logoutMethod != null)
+            {
+                var logoutTask = logoutMethod.Invoke(AuthProvider, null) as Task;
+                if (logoutTask != null)
+                {
+                    await logoutTask;
+                }
+            }
+            else
+            {
+                // Fallback: manually clear the stored data
+                await SStore.RemoveAsync("SMEuser");
+            }
+
+            // Clear all cached data
+            // DataCache.ClearAllCache();
+
+            NavigationManager.NavigateTo("/identity/login", forceLoad: true);
+        }
+        else
+        {
+            NavigationManager.NavigateTo("/", forceLoad: true);
+        }
+    }
+}

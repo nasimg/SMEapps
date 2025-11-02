@@ -9,11 +9,14 @@ namespace SMEapps.Shared.Identity
 {
     public partial class Login
     {
+        
         private LoginModel loginModel = new LoginModel();
         private string? errorMessage = string.Empty;
+        private EditContext editContext;
 
         [Inject] public IHttpClientFactory HttpClientFactory { get; set; } 
         [Inject] public SMEapps.Shared.Services.ISStore SStore { get; set; } = default!;
+        [Inject] public NavigationManager NavigationManager { get; set; }
         private HttpClient ApiClient => HttpClientFactory.CreateClient("ApiClient");
 
 
@@ -44,18 +47,23 @@ namespace SMEapps.Shared.Identity
                             RoleName = result.RoleName ?? "",
                             Id = result.Id ?? ""
                         };
-                        // Save the whole object in localStorage
                         await SStore.SaveAsync("SMEuser", loggedInUser);
-                        // Clear cache to refresh user-specific data
-                        //DataCache.ClearAllCache();
+                        NavigationManager.NavigateTo("/");
+                        errorMessage = $"login Successful";
+                        loginModel = new();
+                        editContext = new EditContext(loginModel);
 
                     }
+                    else
+                    {
+                        errorMessage = "Wrong credentials!";
+                    }
+                }
+                else
+                {
+                    errorMessage = "Login Failed! No Token Received";
                 }
               
-
-                
-
-                await Task.CompletedTask;
             }
             catch (Exception ex)
             {
