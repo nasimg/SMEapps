@@ -1,0 +1,65 @@
+﻿@page "/identity/register"
+@layout IdentityLayout
+
+@inject IHttpClientFactory HttpClientFactory
+@inject IToastService ToastService
+@inject NavigationManager Navigation
+
+<PageTitle>Register – Fluent UI Grid</PageTitle>
+
+<FluentCard Width="100%" Style="max-width: 960px; margin: 2rem auto; padding: 1.5rem;">
+    <h2 style="margin-top:0;">Create your account</h2>
+
+    <EditForm Model="@Model" OnValidSubmit="@HandleSubmit" FormName="RegisterForm">
+        <DataAnnotationsValidator />
+
+        <FluentGrid>
+            <!-- LEFT: Image & Text -->
+            <FluentGridItem xs="12" md="6" class="register-illustration">
+                <div>
+                    <img src="images/login.svg" alt="Register" style="max-width: 100%; height: auto;" />
+                    <p>Welcome! Please fill in your details to register.</p>
+                </div>
+            </FluentGridItem>
+
+            <!-- RIGHT: Account Info -->
+            <FluentGridItem xs="12" md="6">
+                <h4>Account Information</h4>
+
+                <FluentTextField @bind-Value="Model.Email"
+                                 Label="Email"
+                                 Required="true"
+                                 TextFieldType="TextFieldType.Email"
+                                 Style="width:100%; margin-bottom:1rem;" />
+                <ValidationMessage For="@(() => Model.Email)" />
+
+                <FluentTextField @bind-Value="Model.PhoneNumber"
+                                 Label="Phone Number"
+                                 Required="true"
+                                 Style="width:100%; margin-bottom:1rem;" />
+                <ValidationMessage For="@(() => Model.PhoneNumber)" />
+
+                <FluentTextField @bind-Value="Model.Password"
+                                 Label="Password"
+                                 Required="true"
+                                 TextFieldType="TextFieldType.Password"
+                                 Style="width:100%; margin-bottom:1rem;" />
+                <ValidationMessage For="@(() => Model.Password)" />
+                <FluentTextField @bind-Value="Model.ConfirmPassword"
+                                 Label="Confirm Password"
+                                 Required="true"
+                                 TextFieldType="TextFieldType.Password"
+                                 Style="width:100%; margin-bottom:1rem;" />
+                <ValidationMessage For="@(() => Model.ConfirmPassword)" />
+               
+            </FluentGridItem>
+        </FluentGrid>
+
+        <div style="margin-top:2rem; text-align:right;">
+            <FluentButton Appearance="Appearance.Accent" Type="ButtonType.Submit" FormName="RegisterForm">
+                Register
+            </FluentButton>
+        </div>
+    </EditForm>
+    <FluentToastProvider />
+</FluentCard>

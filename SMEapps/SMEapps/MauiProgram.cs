@@ -34,6 +34,10 @@ namespace SMEapps
             builder.Services.AddBlazorWebViewDeveloperTools();
             builder.Logging.AddDebug();
 #endif
+            builder.Services.AddScoped(sp => new HttpClient
+            {
+                BaseAddress = new Uri("https://localhost:7187/")
+            });
 
             return builder.Build();
         }
