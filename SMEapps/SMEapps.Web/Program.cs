@@ -11,18 +11,14 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents()
     .AddInteractiveWebAssemblyComponents();
 
-
 var apiBaseUrl = builder.Configuration["ApiBaseUrl"];
+
 builder.Services.AddFluentUIComponents();
+
+// Register HttpClient with base API URL and default headers
 builder.Services.AddHttpClient("ApiClient", client =>
 {
-    client.BaseAddress = new Uri("https://localhost:7187/"); // your API base URL
-});
-
-// Configure HttpClient with proper error handling
-builder.Services.AddHttpClient("LocalApi", client =>
-{
-    client.BaseAddress = new Uri("https://localhost:7187/");
+    client.BaseAddress = new Uri(apiBaseUrl ?? "https://localhost:7187/");
     client.DefaultRequestHeaders.Add("Accept", "application/json");
 });
 
@@ -37,16 +33,10 @@ builder.Services.AddCors(options =>
     });
 });
 
-
+// Dependency injection registrations
 builder.Services.AddSingleton<IFormFactor, FormFactor>();
 builder.Services.AddScoped<ISStore, SStore>();
 builder.Services.AddTransient<AuthHeaderHandler>();
-
-builder.Services.AddHttpClient("ApiClient", client =>
-{
-    client.BaseAddress = new Uri(apiBaseUrl);
-
-});
 
 var app = builder.Build();
 
@@ -65,6 +55,7 @@ else
 app.UseHttpsRedirection();
 app.UseAntiforgery();
 app.MapStaticAssets();
+
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode()
     .AddInteractiveWebAssemblyRenderMode()
