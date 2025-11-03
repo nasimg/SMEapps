@@ -1,44 +1,72 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
-using SMEapps.Shared.Model; // adjust to your actual model namespace
+using SMEapps.Shared.Model;
+using SMEapps.Shared.Services;
+using System.Net.Http.Json;
+
 
 namespace SMEapps.Shared.Identity
 {
     public partial class Login
     {
+        
         private LoginModel loginModel = new LoginModel();
         private string? errorMessage = string.Empty;
-        private string? color = "red";
 
-        // Called when form is valid and submitted
+        [Inject] public IHttpClientFactory HttpClientFactory { get; set; } 
+        [Inject] public SMEapps.Shared.Services.ISStore SStore { get; set; } = default!;
+        [Inject] public NavigationManager NavigationManager { get; set; }
+        private HttpClient ApiClient => HttpClientFactory.CreateClient("ApiClient");
+
+
         private async Task HandleValidSubmit(EditContext editContext)
         {
-            // remove the NotImplementedException
-            // perform login logic here (call API, check credentials, redirect)
+          
             try
             {
-                // Example pseudo-logic:
-                // var result = await AuthService.LoginAsync(loginModel.email, loginModel.password);
-                // if (result.Success) NavigationManager.NavigateTo("/"); else { set errorMessage/color }
 
                 errorMessage = string.Empty;
-                color = "green";
-                // TODO: replace with real login call
-                await Task.CompletedTask;
+
+                var response = await ApiClient.PostAsJsonAsync("Identity/GetToken", loginModel);
+                if (response.IsSuccessStatusCode) {
+                    var result = await response.Content.ReadFromJsonAsync<LoginResult>();
+
+                    if (result is not null && !string.IsNullOrEmpty(result.Token))
+                    {
+                        var loggedInUser = new LoginResult
+                        {
+                            Token = result.Token,
+                            UserName = result.UserName ?? "",
+                            Validity = result.Validity ?? "",
+                            RefreshToken = result.RefreshToken ?? "",
+                            UserId = result.UserId ?? "",
+                            EmailId = result.EmailId ?? "",
+                            RoleId = result.RoleId ?? "",
+                            ExpiredTime = result.ExpiredTime,
+                            RoleName = result.RoleName ?? "",
+                            Id = result.Id ?? ""
+                        };
+                        await SStore.SaveAsync("SMEuser", loggedInUser);
+                        NavigationManager.NavigateTo("/");
+                        errorMessage = $"login Successful";
+
+                    }
+                    else
+                    {
+                        errorMessage = "Wrong credentials!";
+                    }
+                }
+                else
+                {
+                    errorMessage = "Login Failed! No Token Received";
+                }
+              
             }
             catch (Exception ex)
             {
                 errorMessage = "Login failed: " + ex.Message;
-                color = "red";
             }
         }
-
-        // Called when form is invalid
-        private void HandleInvalidSubmit(EditContext editContext)
-        {
-            // you can inspect editContext to see validation messages or mark fields manually
-            errorMessage = "Please correct the validation errors and try again.";
-            color = "red";
-        }
+      
     }
 }
