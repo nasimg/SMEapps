@@ -12,7 +12,6 @@ namespace SMEapps.Shared.Identity
         
         private LoginModel loginModel = new LoginModel();
         private string? errorMessage = string.Empty;
-        private EditContext editContext;
 
         [Inject] public IHttpClientFactory HttpClientFactory { get; set; } 
         [Inject] public SMEapps.Shared.Services.ISStore SStore { get; set; } = default!;
@@ -50,8 +49,6 @@ namespace SMEapps.Shared.Identity
                         await SStore.SaveAsync("SMEuser", loggedInUser);
                         NavigationManager.NavigateTo("/");
                         errorMessage = $"login Successful";
-                        loginModel = new();
-                        editContext = new EditContext(loginModel);
 
                     }
                     else
