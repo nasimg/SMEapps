@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Components;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using SMEapps.Shared.Model;
 using System.Net.Http.Json;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,7 +13,8 @@ namespace SMEapps.Shared.Identity
     public partial class ResetPassword
     {
         private ResetPasswordModel resetModel = new();
-        private bool isLoading;
+       
+        private bool isLoading = false;
 
         protected override void OnInitialized()
         {
@@ -77,15 +80,6 @@ namespace SMEapps.Shared.Identity
             {
                 isLoading = false;
             }
-        }
-
-
-        public class ResetPasswordModel
-        {
-            public string Email { get; set; } = "";
-            public string ResetPasswordToken { get; set; } = "";
-            public string NewPassword { get; set; } = "";
-            public string ConfirmPassword { get; set; } = "";
         }
     }
     }

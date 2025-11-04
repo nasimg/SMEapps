@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
+using SMEapps.Shared.Model;
 
 namespace SMEapps.Shared.Identity
 {
@@ -61,12 +62,4 @@ namespace SMEapps.Shared.Identity
         }
     }
 
-    public class Responses
-    {
-        public bool IsSuccess { get; set; }
-        public string Message { get; set; } = "";
-        public string ReturnCode { get; set; } = "";
-        public string? Token { get; set; }
-        public string? Email { get; set; }
-    }
 }
