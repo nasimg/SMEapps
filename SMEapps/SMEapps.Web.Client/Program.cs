@@ -12,6 +12,8 @@ builder.Services.AddFluentUIComponents();
 // Add device-specific services used by the SMEapps.Shared project
 builder.Services.AddSingleton<IFormFactor, FormFactor>();
 builder.Services.AddSingleton<ISStore, SStore>();
+
+// Add HttpClient for API calls
 builder.Services.AddHttpClient("ApiClient", client =>
 {
     client.BaseAddress = new Uri("https://localhost:7187/");

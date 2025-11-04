@@ -1,3 +1,5 @@
+using Anudan.Web.Client.Services;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.FluentUI.AspNetCore.Components;
 using SMEapps.Shared.Services;
 using SMEapps.Web.Client.Services;
@@ -8,8 +10,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
-    .AddInteractiveServerComponents()
     .AddInteractiveWebAssemblyComponents();
+
+builder.Services.AddSingleton<IFormFactor, FormFactor>();
+builder.Services.AddScoped<ISStore, SStore>();
 
 var apiBaseUrl = builder.Configuration["ApiBaseUrl"];
 
@@ -34,9 +38,13 @@ builder.Services.AddCors(options =>
 });
 
 // Dependency injection registrations
-builder.Services.AddSingleton<IFormFactor, FormFactor>();
-builder.Services.AddScoped<ISStore, SStore>();
-builder.Services.AddTransient<AuthHeaderHandler>();
+
+//builder.Services.AddTransient<AuthHeaderHandler>();
+// Register Authentication Services
+builder.Services.AddScoped<WebAuthStateProvider>();
+builder.Services.AddScoped<AuthenticationStateProvider>(sp => sp.GetRequiredService<WebAuthStateProvider>());
+builder.Services.AddAuthorization();
+builder.Services.AddCascadingAuthenticationState();
 
 var app = builder.Build();
 
@@ -57,7 +65,6 @@ app.UseAntiforgery();
 app.MapStaticAssets();
 
 app.MapRazorComponents<App>()
-    .AddInteractiveServerRenderMode()
     .AddInteractiveWebAssemblyRenderMode()
     .AddAdditionalAssemblies(
         typeof(SMEapps.Shared._Imports).Assembly,

@@ -21,38 +21,30 @@
 
 
 @code {
-    bool? canceled;
     private async Task ConfirmLogout()
     {
-        var dialog = await DialogService.ShowConfirmationAsync("Do you want to logout?", "Yes", "No", "Confirmation for logout");
-        var result = await dialog.Result;
-        canceled = result.Cancelled;
-        if (!canceled.HasValue || !canceled.Value)
-        {
-            // Use reflection to call LogoutAsync if available
-            var logoutMethod = AuthProvider.GetType().GetMethod("LogoutAsync");
-            if (logoutMethod != null)
-            {
-                var logoutTask = logoutMethod.Invoke(AuthProvider, null) as Task;
-                if (logoutTask != null)
-                {
-                    await logoutTask;
-                }
-            }
-            else
-            {
-                // Fallback: manually clear the stored data
-                await SStore.RemoveAsync("SMEuser");
-            }
+        var dialog = await DialogService.ShowConfirmationAsync(
+            "Do you want to logout?", "Yes", "No", "Logout?");
 
-            // Clear all cached data
-            // DataCache.ClearAllCache();
-
-            NavigationManager.NavigateTo("/identity/login", forceLoad: true);
-        }
-        else
+        if ((await dialog.Result).Cancelled)
         {
-            NavigationManager.NavigateTo("/", forceLoad: true);
+            NavigationManager.NavigateTo("/");
+            return;
         }
+
+        await Task.Run(async () =>
+        {
+            // logout
+            var m = AuthProvider.GetType().GetMethod("LogoutAsync");
+            if (m?.Invoke(AuthProvider, null) is Task t) await t;
+
+            // clear
+            var keys = new[] { "token","refreshToken","userName","userId","emailId",
+                               "roleId","roleName","validity","expiredTime","id" };
+            await Task.WhenAll(keys.Select(SStore.RemoveAsync));
+        });
+
+        await Task.Delay(5000);
+        NavigationManager.NavigateTo("/identity/login");
     }
 }
