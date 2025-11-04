@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
+using System.Net.Http.Json;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Components;
 
 namespace SMEapps.Shared.Identity
 {
@@ -11,6 +10,10 @@ namespace SMEapps.Shared.Identity
     {
         private EmailModel emailModel = new();
         private bool isLoading = false;
+
+        //[Inject] private IHttpClientFactory ClientFactory { get; set; } = default!;
+        //[Inject] private NavigationManager Nav { get; set; } = default!;
+   
 
         private async Task SendResetEmail()
         {
@@ -22,11 +25,23 @@ namespace SMEapps.Shared.Identity
 
                 if (response.IsSuccessStatusCode)
                 {
-                    ToastService.ShowSuccess("Password reset link has been sent to your email.");
+                    var result = await response.Content.ReadFromJsonAsync<Responses>();
+
+                    if (result != null && result.IsSuccess)
+                    {
+                        ToastService.ShowSuccess("Token generated successfully!");
+
+                        await Task.Delay(1000);
+                        Nav.NavigateTo($"/identity/reset-password?email={Uri.EscapeDataString(result.Email ?? emailModel.Email)}&token={Uri.EscapeDataString(result.Token ?? "")}");
+                    }
+                    else
+                    {
+                        ToastService.ShowError(result?.Message ?? "Something went wrong.");
+                    }
                 }
                 else
                 {
-                    ToastService.ShowError("Unable to send reset link. Please check your email address.");
+                    ToastService.ShowError("Email not found.");
                 }
             }
             catch (Exception ex)
@@ -42,7 +57,16 @@ namespace SMEapps.Shared.Identity
         public class EmailModel
         {
             [Required, EmailAddress]
-            public string Email { get; set; } = string.Empty;
+            public string Email { get; set; } = "";
         }
     }
+
+    public class Responses
+    {
+        public bool IsSuccess { get; set; }
+        public string Message { get; set; } = "";
+        public string ReturnCode { get; set; } = "";
+        public string? Token { get; set; }
+        public string? Email { get; set; }
     }
+}
