@@ -1,0 +1,48 @@
+﻿@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.FluentUI.AspNetCore.Components
+@using SMEapps.Shared.Services
+@inject AuthenticationStateProvider AuthProvider
+@inject ISStore SStore
+@inject NavigationManager NavigationManager
+@* @inject IDialogService DialogService *@
+
+<FluentButton Appearance="Appearance.Accent" @onclick="ConfirmLogout">
+    Logout
+</FluentButton>
+
+@code {
+    private async Task ConfirmLogout()
+    {
+        // var dialog = await DialogService.ShowConfirmationAsync(
+        //     "Do you want to logout?",
+        //     "Yes",
+        //     "No",
+        //     "Confirmation for logout"
+        // );
+
+        // var result = await dialog.Result;
+        // bool canceled = result.Cancelled;
+
+        if (true)
+        {
+            // Attempt to call LogoutAsync on AuthProvider if exists
+            var logoutMethod = AuthProvider.GetType().GetMethod("LogoutAsync");
+            if (logoutMethod != null)
+            {
+                var logoutTask = logoutMethod.Invoke(AuthProvider, null) as Task;
+                if (logoutTask != null) await logoutTask;
+            }
+            else
+            {
+                // Fallback: remove stored user
+                await SStore.RemoveAsync("SMEuser");
+            }
+            await Task.Delay(50);
+            // Navigate to login after logout
+            NavigationManager.NavigateTo("/identity/login");
+        }
+        
+    }
+
+
+}
