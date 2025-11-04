@@ -54,6 +54,7 @@ namespace SMEapps.Shared.Identity
                     var result = await response.Content.ReadFromJsonAsync<Responses>();
                     if (result?.IsSuccess == true)
                     {
+                        await Task.Delay(1000);
                         ToastService.ShowSuccess("Password reset successfully!");
                         Nav.NavigateTo("/identity/login");
                     }
