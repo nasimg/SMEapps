@@ -24,8 +24,8 @@ namespace SMEapps
             builder.Services.AddHttpClient("ApiClient", client =>
             {
                 client.BaseAddress = new Uri(apiBaseUrl);
-            }).AddHttpMessageHandler<AuthHeaderHandler>();
-            builder.Services.AddTransient<AuthHeaderHandler>();
+            }).AddHttpMessageHandler<AuthHeader>();
+            builder.Services.AddTransient<AuthHeader>();
 
             builder.Services.AddMauiBlazorWebView();
             builder.Services.AddFluentUIComponents();

@@ -19,8 +19,18 @@ var apiBaseUrl = builder.Configuration["ApiBaseUrl"];
 
 builder.Services.AddFluentUIComponents();
 
-// Register HttpClient with base API URL and default headers
+// Register AuthHeader handler so it can be added to HttpClient pipeline
+builder.Services.AddTransient<AuthHeader>();
+
+// Register HttpClient with base API URL and default headers. Add handler to main ApiClient
 builder.Services.AddHttpClient("ApiClient", client =>
+{
+    client.BaseAddress = new Uri(apiBaseUrl ?? "https://localhost:7187/");
+    client.DefaultRequestHeaders.Add("Accept", "application/json");
+}).AddHttpMessageHandler<AuthHeader>();
+
+// Add a refresh client that does NOT have the AuthHeader to avoid recursion during refresh
+builder.Services.AddHttpClient("ApiClient.Refresh", client =>
 {
     client.BaseAddress = new Uri(apiBaseUrl ?? "https://localhost:7187/");
     client.DefaultRequestHeaders.Add("Accept", "application/json");

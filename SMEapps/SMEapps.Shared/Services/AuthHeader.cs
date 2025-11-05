@@ -4,12 +4,12 @@ using System.IdentityModel.Tokens.Jwt;
 
 namespace SMEapps.Shared.Services
 {
-    public class AuthHeaderHandler: DelegatingHandler
+    public class AuthHeader : DelegatingHandler
     {
         private readonly ISStore _store;
         private readonly IHttpClientFactory _clientFactory;
 
-        public AuthHeaderHandler(ISStore store, IHttpClientFactory clientFactory)
+        public AuthHeader(ISStore store, IHttpClientFactory clientFactory)
         {
             _store = store;
             _clientFactory = clientFactory;
@@ -20,21 +20,19 @@ namespace SMEapps.Shared.Services
             var accessToken = await _store.GetAsync<string>("token");
             var refreshToken = await _store.GetAsync<string>("refreshToken");
 
-            // 1. Check if access token is expired
+            // 1. If access token expired and refresh token exists, attempt refresh using a client that DOES NOT have this handler
             if (!string.IsNullOrEmpty(accessToken) && IsTokenExpired(accessToken) && !string.IsNullOrEmpty(refreshToken))
             {
-                // 2. Attempt to refresh the token
-                var client = _clientFactory.CreateClient("ApiClient");
-                var response = await client.PostAsJsonAsync("/Identity/GetRefreshToken", new { refreshToken = refreshToken });
+                // Use a separate named client that does NOT have AuthHeader in its pipeline to avoid recursion
+                var refreshClient = _clientFactory.CreateClient("ApiClient.Refresh");
+                var response = await refreshClient.PostAsJsonAsync("/Identity/GetRefreshToken", new { refreshToken = refreshToken }, cancellationToken);
                 if (response.IsSuccessStatusCode)
                 {
-                    var result = await response.Content.ReadFromJsonAsync<TokenResponse>();
+                    var result = await response.Content.ReadFromJsonAsync<TokenResponse>(cancellationToken: cancellationToken);
                     if (result == null || string.IsNullOrEmpty(result.Token) || string.IsNullOrEmpty(result.RefreshToken))
                     {
-                        // 4. Refresh failed, clear tokens and handle logout
                         await _store.RemoveAsync("token");
                         await _store.RemoveAsync("refreshToken");
-                        // Optionally: throw or redirect to login
                         throw new UnauthorizedAccessException("Session expired. Please log in again.");
                     }
                     await _store.SaveAsync("token", result.Token);
@@ -43,15 +41,13 @@ namespace SMEapps.Shared.Services
                 }
                 else
                 {
-                    // 4. Refresh failed, clear tokens and handle logout
                     await _store.RemoveAsync("token");
                     await _store.RemoveAsync("refreshToken");
-                    // Optionally: throw or redirect to login
                     throw new UnauthorizedAccessException("Session expired. Please log in again.");
                 }
             }
 
-            // 3. Attach the (new or existing) access token
+            // 2. Attach token (if present)
             if (!string.IsNullOrEmpty(accessToken))
                 request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 

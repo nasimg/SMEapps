@@ -13,11 +13,22 @@ builder.Services.AddFluentUIComponents();
 builder.Services.AddSingleton<IFormFactor, FormFactor>();
 builder.Services.AddSingleton<ISStore, SStore>();
 
-// Add HttpClient for API calls
+// Register AuthHeader handler so it can be added to HttpClient pipeline
+builder.Services.AddTransient<AuthHeader>();
+
+// Add HttpClient for API calls — main client has the AuthHeader
 builder.Services.AddHttpClient("ApiClient", client =>
 {
     client.BaseAddress = new Uri("https://localhost:7187/");
+})
+.AddHttpMessageHandler<AuthHeader>();
+
+// Add a second client used for token refresh that does NOT use the AuthHeader (avoids recursion)
+builder.Services.AddHttpClient("ApiClient.Refresh", client =>
+{
+    client.BaseAddress = new Uri("https://localhost:7187/");
 });
+
 // Register Authentication Services
 builder.Services.AddScoped<WebAuthStateProvider>();
 builder.Services.AddScoped<AuthenticationStateProvider>(sp => sp.GetRequiredService<WebAuthStateProvider>());
