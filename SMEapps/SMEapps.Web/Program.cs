@@ -1,6 +1,5 @@
 using Anudan.Web.Client.Services;
 using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.FluentUI.AspNetCore.Components;
 using SMEapps.Shared.Services;
 using SMEapps.Web.Client.Services;
 using SMEapps.Web.Client.Services.SStore;
@@ -20,7 +19,7 @@ builder.Services.AddScoped<ISStore, SStore>();
 
 var apiBaseUrl = builder.Configuration["ApiBaseUrl"];
 
-builder.Services.AddFluentUIComponents();
+//builder.Services.AddFluentUIComponents();
 
 // Register AuthHeader handler so it can be added to HttpClient pipeline
 builder.Services.AddTransient<AuthHeader>();

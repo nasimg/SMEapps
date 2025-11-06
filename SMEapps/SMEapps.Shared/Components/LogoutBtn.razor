@@ -1,10 +1,9 @@
 ﻿@using Microsoft.AspNetCore.Components.Authorization
-@using Microsoft.FluentUI.AspNetCore.Components
 @using SMEapps.Shared.Services
 @inject AuthenticationStateProvider AuthProvider
 @inject ISStore SStore
 @inject NavigationManager NavigationManager
-@inject IDialogService DialogService 
+
 
 <FluentButton Appearance="Appearance.Accent" @onclick="ConfirmLogout">
     Logout
@@ -14,28 +13,28 @@
     private bool? canceled;
     private async Task ConfirmLogout()
     {
-        var dialog = await DialogService.ShowConfirmationAsync(
-            "Do you want to logout?", "Yes", "No", "Logout?");
+        // var dialog = await DialogService.ShowConfirmationAsync(
+        //     "Do you want to logout?", "Yes", "No", "Logout?");
 
-        if ((await dialog.Result).Cancelled)
-        {
-            NavigationManager.NavigateTo("/");
-            return;
-        }
+        // if ((await dialog.Result).Cancelled)
+        // {
+        //     NavigationManager.NavigateTo("/");
+        //     return;
+        // }
 
-        await Task.Run(async () =>
-        {
-            // logout
-            var m = AuthProvider.GetType().GetMethod("LogoutAsync");
-            if (m?.Invoke(AuthProvider, null) is Task t) await t;
+        // await Task.Run(async () =>
+        // {
+        //     logout
+        //     var m = AuthProvider.GetType().GetMethod("LogoutAsync");
+        //     if (m?.Invoke(AuthProvider, null) is Task t) await t;
 
            
-            var keys = new[] { "token","refreshToken","userName","userId","emailId",
-                               "roleId","roleName","validity","expiredTime","id" };
-            await Task.WhenAll(keys.Select(SStore.RemoveAsync));
-        });
+        //     var keys = new[] { "token","refreshToken","userName","userId","emailId",
+        //                        "roleId","roleName","validity","expiredTime","id" };
+        //     await Task.WhenAll(keys.Select(SStore.RemoveAsync));
+        // });
 
-        await Task.Delay(100);
-        NavigationManager.NavigateTo("/identity/login");
+        // await Task.Delay(100);
+        // NavigationManager.NavigateTo("/identity/login");
     }
 }

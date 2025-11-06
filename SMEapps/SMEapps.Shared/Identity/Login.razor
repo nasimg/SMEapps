@@ -4,47 +4,9 @@
 @inject IHttpClientFactory httpClientFactory
 @using Microsoft.AspNetCore.Components.Forms
 @using Microsoft.AspNetCore.Components.Authorization
-@using Microsoft.FluentUI.AspNetCore.Components
 @inject AuthenticationStateProvider AuthProvider
 
 <div style="display: flex; justify-content: center; align-items: center; min-height: 100vh;">
-    <EditForm Model="@loginModel"
-              OnValidSubmit="HandleValidSubmit"
-              FormName="login">
-        <FluentCard Class="identity-card">
-            <h1>Login into Application</h1>
-            <hr />
-            <DataAnnotationsValidator />
-            <div style="margin-bottom: 1rem;">
-                <FluentTextField Label="Username"
-                                 Placeholder="Enter your username"
-                                 @bind-Value="loginModel.Email"
-                                 Style="width:100%" />
-                <ValidationMessage For="@(() => loginModel.Email)" class="validation-error" />
-            </div>
-
-            <div style="margin-bottom: 1rem;">
-                <FluentTextField Label="Password"
-                                 @bind-Value="loginModel.Password"
-                                 Type="password"
-                                 Placeholder="Enter your password"
-                                 Style="width:100%" />
-                <ValidationMessage For="@(() => loginModel.Password)" class="validation-error" />
-            </div>
-
-            <FluentButton Appearance=Appearance.Accent Type="ButtonType.Submit" >
-                Login
-            </FluentButton>
-            <div style="display: flex; justify-content: space-between; margin-top: 1rem;">
-                <a href="/identity/register" style="text-decoration: none;">Register</a>
-                <a href="/identity/forgot" style="text-decoration: none;">Forgot Password?</a>
-            </div>
-            @if (!string.IsNullOrEmpty(errorMessage))
-            {
-                <div style="margin-top:1rem;" class="validation-error">@errorMessage</div>
-            }
-        </FluentCard>
-
-    </EditForm>
+    
 </div>
 

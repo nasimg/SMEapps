@@ -3,48 +3,42 @@
 @using SMEapps.Shared.Layout
 @using SMEapps.Shared.Services
 @using Microsoft.AspNetCore.Components.Authorization
-@using Microsoft.FluentUI.AspNetCore.Components
 @inject AuthenticationStateProvider AuthProvider
 @inject ISStore SStore
 @* @inject IDataCacheService DataCache *@
 @inject NavigationManager NavigationManager
-@inject IDialogService DialogService
+
 
 <div>
-    <FluentCard>
-        <h2>Logout From Appliction</h2>
-        <FluentButton Appearance="Appearance.Accent" @onclick="ConfirmLogout">
-            Logout
-        </FluentButton>
-    </FluentCard>
+
 </div>
 
 
 @code {
     private async Task ConfirmLogout()
     {
-        var dialog = await DialogService.ShowConfirmationAsync(
-            "Do you want to logout?", "Yes", "No", "Logout?");
+        // var dialog = await DialogService.ShowConfirmationAsync(
+        //     "Do you want to logout?", "Yes", "No", "Logout?");
 
-        if ((await dialog.Result).Cancelled)
-        {
-            NavigationManager.NavigateTo("/");
-            return;
-        }
+        // if ((await dialog.Result).Cancelled)
+        // {
+        //     NavigationManager.NavigateTo("/");
+        //     return;
+        // }
 
-        await Task.Run(async () =>
-        {
-            // logout
-            var m = AuthProvider.GetType().GetMethod("LogoutAsync");
-            if (m?.Invoke(AuthProvider, null) is Task t) await t;
+        // await Task.Run(async () =>
+        // {
+        //     logout
+        //     var m = AuthProvider.GetType().GetMethod("LogoutAsync");
+        //     if (m?.Invoke(AuthProvider, null) is Task t) await t;
 
-            // clear
-            var keys = new[] { "token","refreshToken","userName","userId","emailId",
-                               "roleId","roleName","validity","expiredTime","id" };
-            await Task.WhenAll(keys.Select(SStore.RemoveAsync));
-        });
+        //     clear
+        //     var keys = new[] { "token","refreshToken","userName","userId","emailId",
+        //                        "roleId","roleName","validity","expiredTime","id" };
+        //     await Task.WhenAll(keys.Select(SStore.RemoveAsync));
+        // });
 
-        await Task.Delay(5000);
-        NavigationManager.NavigateTo("/identity/login");
+        // await Task.Delay(5000);
+        // NavigationManager.NavigateTo("/identity/login");
     }
 }

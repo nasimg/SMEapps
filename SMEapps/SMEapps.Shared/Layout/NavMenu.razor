@@ -2,64 +2,9 @@
 @using SMEapps.Shared.Services
 <div class="navmenu">
     <input type="checkbox" title="Menu expand/collapse toggle" id="navmenu-toggle" class="navmenu-icon" />
-    <label for="navmenu-toggle" class="navmenu-icon"><FluentIcon Value="@(new Icons.Regular.Size20.Navigation())" Color="Color.Fill" /></label>
+    <label for="navmenu-toggle" class="navmenu-icon"></label>
     <nav class="sitenav" aria-labelledby="main-menu">
-        <FluentNavMenu Id="main-menu" Collapsible="true" Width="250" Title="Navigation menu" @bind-Expanded="expanded" CustomToggle="true">
-            @if (!isLoaded)
-            {
-                <FluentNavLink Icon="@(new Icons.Regular.Size20.Home())" IconColor="Color.Accent">Loading...</FluentNavLink>
-            }
-            else if (modules?.Any() == true)
-            {
-                @foreach (var module in modules.OrderBy(m => m.MenuPosition))
-                {
-                    var moduleKey = (module.Name ?? "").Trim();
-                    // If module has features, render as collapsible header (no parent navigation)
-                    if (module.Features?.Any() == true)
-                    {
-                        <div class="module-header" style="display:flex; align-items:center; justify-content:space-between;">
-                            <div style="display:flex; align-items:center; gap:0.5rem;">
-                                @* Optionally show an icon if provided *@
-                                @if (!string.IsNullOrWhiteSpace(module.Icon))
-                                {
-                                    <FluentIcon Value="@(new Icons.Regular.Size20.Navigation())" />
-                                }
-                                <span>@module.Name</span>
-                            </div>
-                            <div>
-                                <FluentButton OnClick="@(() => ToggleModule(moduleKey))">
-                                    @if (IsModuleExpanded(moduleKey))
-                                    {
-                                        <FluentIcon Value="@(new Icons.Regular.Size20.ChevronDown())" />
-                                    }
-                                    else
-                                    {
-                                        <FluentIcon Value="@(new Icons.Regular.Size20.ChevronRight())" />
-                                    }
-                                </FluentButton>
-                            </div>
-                        </div>
 
-                        @if (IsModuleExpanded(moduleKey))
-                        {
-                            foreach (var feat in module.Features.OrderBy(f => f.OrderNo))
-                            {
-                                if (!string.IsNullOrWhiteSpace(feat.Path))
-                                {
-                                    <FluentNavLink Href="@feat.Path" Style="padding-left:1.25rem; font-size:0.95rem;">@feat.FeatureName</FluentNavLink>
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        // Leaf module: render as a regular nav link
-                        <FluentNavLink Href="@module.Url" IconColor="Color.Accent">@module.Name</FluentNavLink>
-                    }
-                }
-            }
-            
-        </FluentNavMenu>
     </nav>
 </div>
 

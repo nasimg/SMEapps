@@ -1,7 +1,9 @@
 using Microsoft.Extensions.Logging;
-using Microsoft.FluentUI.AspNetCore.Components;
+
 using SMEapps.Services;
 using SMEapps.Shared.Services;
+using Microsoft.Extensions.DependencyInjection;
+
 
 namespace SMEapps
 {
@@ -31,7 +33,7 @@ namespace SMEapps
             builder.Services.AddScoped<DashboardService>();
             
             builder.Services.AddMauiBlazorWebView();
-            builder.Services.AddFluentUIComponents();
+
 
 #if DEBUG
             builder.Services.AddBlazorWebViewDeveloperTools();
