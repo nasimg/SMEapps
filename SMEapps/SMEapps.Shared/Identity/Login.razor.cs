@@ -42,23 +42,64 @@ namespace SMEapps.Shared.Identity
                         await SStore.SaveAsync("roleName", result.RoleName);
                         await SStore.SaveAsync("id", result.Id);
 
-                        // Clear cache to refresh user-specific data
-                        //DataCache.ClearAllCache();
-
                         // Notify authentication state change
                         // Use reflection to call NotifyUserAuthenticationAsync if available
                         var notifyMethod = AuthProvider.GetType().GetMethod("NotifyUserAuthenticationAsync");
+                        bool notified = false;
                         if (notifyMethod != null)
                         {
-                            var notifyTask = notifyMethod.Invoke(AuthProvider, null) as Task;
-                            if (notifyTask != null)
+                            try
                             {
-                                await notifyTask;
+                                var notifyTask = notifyMethod.Invoke(AuthProvider, null) as Task;
+                                if (notifyTask != null)
+                                {
+                                    await notifyTask;
+                                    notified = true;
+                                }
+                            }
+                            catch
+                            {
+                                // ignore reflection invocation errors
                             }
                         }
 
-                        NavigationManager.NavigateTo("/");
-                        //color = "green";
+                        // After successful login, navigate back to the original returnUrl (if present)
+                        // Parse returnUrl from the current URI query string
+                        string returnUrl = "/";
+                        try
+                        {
+                            var abs = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
+                            var query = abs.Query; // e.g. ?returnUrl=%2Fcounter
+                            if (!string.IsNullOrEmpty(query))
+                            {
+                                var pairs = query.TrimStart('?').Split('&', StringSplitOptions.RemoveEmptyEntries);
+                                foreach (var p in pairs)
+                                {
+                                    var kv = p.Split('=', 2);
+                                    if (kv.Length == 2 && kv[0] == "returnUrl")
+                                    {
+                                        returnUrl = Uri.UnescapeDataString(kv[1]);
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        catch
+                        {
+                            // ignore parsing errors and fall back to "/"
+                        }
+
+                        // If NotifyUserAuthenticationAsync was not available, give the browser a short moment
+                        // to persist values to localStorage so subsequent auth checks see them.
+                        if (!notified)
+                        {
+                            await Task.Delay(200);
+                        }
+
+                        // Force full reload so that the app picks up the new token reliably
+                        var target = string.IsNullOrEmpty(returnUrl) ? "/" : returnUrl;
+                        NavigationManager.NavigateTo(target, true);
+
                         errorMessage = $"login Successful";
                         loginModel = new();
                     }

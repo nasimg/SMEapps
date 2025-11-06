@@ -13,6 +13,26 @@ namespace SMEapps.Web.Client.Services.SStore
             _js = js;
         }
 
+        private static bool IsUnsupportedJsRuntime(Exception? ex)
+        {
+            while (ex != null)
+            {
+                var fullName = ex.GetType().FullName ?? string.Empty;
+                var name = ex.GetType().Name ?? string.Empty;
+
+                if (fullName == "Microsoft.AspNetCore.Components.Endpoints.UnsupportedJavaScriptRuntime"
+                    || name.Contains("UnsupportedJavaScriptRuntime")
+                    || (ex.Message != null && ex.Message.Contains("JavaScript interop calls cannot be issued during server-side static rendering", StringComparison.OrdinalIgnoreCase)))
+                {
+                    return true;
+                }
+
+                ex = ex.InnerException;
+            }
+
+            return false;
+        }
+
         private async Task SafeInvokeAsync(Func<Task> action)
         {
             try
@@ -21,6 +41,7 @@ namespace SMEapps.Web.Client.Services.SStore
             }
             catch (JSDisconnectedException) { /* Ignore: app is reloading */ }
             catch (ObjectDisposedException) { /* Ignore: JS runtime disposed */ }
+            catch (Exception ex) when (IsUnsupportedJsRuntime(ex)) { /* Ignore: running in environment without JS runtime (prerendering) */ }
         }
 
         public async Task<bool> SaveAsync<T>(string key, T value)
@@ -42,6 +63,7 @@ namespace SMEapps.Web.Client.Services.SStore
             }
             catch (JSDisconnectedException) { }
             catch (ObjectDisposedException) { }
+            catch (Exception ex) when (IsUnsupportedJsRuntime(ex)) { }
 
             return default;
         }
@@ -66,6 +88,7 @@ namespace SMEapps.Web.Client.Services.SStore
             }
             catch (JSDisconnectedException) { }
             catch (ObjectDisposedException) { }
+            catch (Exception ex) when (IsUnsupportedJsRuntime(ex)) { }
 
             return false;
         }
