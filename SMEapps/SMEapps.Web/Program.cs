@@ -5,6 +5,9 @@ using SMEapps.Shared.Services;
 using SMEapps.Web.Client.Services;
 using SMEapps.Web.Client.Services.SStore;
 using SMEapps.Web.Components;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,15 +39,39 @@ builder.Services.AddHttpClient("ApiClient.Refresh", client =>
     client.DefaultRequestHeaders.Add("Accept", "application/json");
 });
 
-// Add CORS
+// Add CORS — allow the Blazor WASM origin and required headers/methods
+var allowedClientOrigin = builder.Configuration["ClientOrigin"] ?? "https://localhost:7206";
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll", policy =>
+    options.AddPolicy("AllowClient", policy =>
     {
-        policy.AllowAnyOrigin()
+        policy.WithOrigins(allowedClientOrigin)
               .AllowAnyMethod()
               .AllowAnyHeader();
+        // If you need to allow cookies, call .AllowCredentials() and DO NOT use WithOrigins("*")
     });
+});
+
+// Register authentication services so IAuthenticationService is available
+// Configure JWT Bearer as the default authentication/challenge scheme.
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    // Minimal configuration for development: do not validate issuer/audience/signing key here.
+    // Replace with real validation in production (TokenValidationParameters with IssuerSigningKey etc.).
+    options.RequireHttpsMetadata = false;
+    options.SaveToken = true;
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = false,
+        ValidateAudience = false,
+        ValidateIssuerSigningKey = false,
+        ValidateLifetime = true
+    };
 });
 
 // Dependency injection registrations
@@ -62,7 +89,6 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseWebAssemblyDebugging();
-    app.UseCors("AllowAll");
 }
 else
 {
@@ -72,6 +98,14 @@ else
 
 app.UseHttpsRedirection();
 app.UseAntiforgery();
+
+// Use CORS globally so preflight/options requests are handled and responses include the proper headers
+app.UseCors("AllowClient");
+
+// Enable authentication/authorization middleware
+app.UseAuthentication();
+app.UseAuthorization();
+
 app.MapStaticAssets();
 
 app.MapRazorComponents<App>()

@@ -1,6 +1,8 @@
 ﻿using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.IdentityModel.Tokens.Jwt;
+using Microsoft.AspNetCore.Components;
+using System.Net;
 
 namespace SMEapps.Shared.Services
 {
@@ -8,11 +10,13 @@ namespace SMEapps.Shared.Services
     {
         private readonly ISStore _store;
         private readonly IHttpClientFactory _clientFactory;
+        private readonly IServiceProvider _serviceProvider;
 
-        public AuthHeader(ISStore store, IHttpClientFactory clientFactory)
+        public AuthHeader(ISStore store, IHttpClientFactory clientFactory, IServiceProvider serviceProvider)
         {
             _store = store;
             _clientFactory = clientFactory;
+            _serviceProvider = serviceProvider;
         }
 
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
@@ -33,6 +37,8 @@ namespace SMEapps.Shared.Services
                     {
                         await _store.RemoveAsync("token");
                         await _store.RemoveAsync("refreshToken");
+                        // redirect to login if possible
+                        TryRedirectToLogin();
                         throw new UnauthorizedAccessException("Session expired. Please log in again.");
                     }
                     await _store.SaveAsync("token", result.Token);
@@ -43,6 +49,7 @@ namespace SMEapps.Shared.Services
                 {
                     await _store.RemoveAsync("token");
                     await _store.RemoveAsync("refreshToken");
+                    TryRedirectToLogin();
                     throw new UnauthorizedAccessException("Session expired. Please log in again.");
                 }
             }
@@ -51,7 +58,36 @@ namespace SMEapps.Shared.Services
             if (!string.IsNullOrEmpty(accessToken))
                 request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
-            return await base.SendAsync(request, cancellationToken);
+            // Send the request and inspect the response for 401/403
+            var serverResponse = await base.SendAsync(request, cancellationToken);
+
+            if (serverResponse.StatusCode == HttpStatusCode.Unauthorized || serverResponse.StatusCode == HttpStatusCode.Forbidden)
+            {
+                // Clear tokens and redirect to login page when possible
+                await _store.RemoveAsync("token");
+                await _store.RemoveAsync("refreshToken");
+                TryRedirectToLogin();
+            }
+
+            return serverResponse;
+        }
+
+        private void TryRedirectToLogin()
+        {
+            try
+            {
+                var nav = _serviceProvider.GetService(typeof(NavigationManager)) as NavigationManager;
+                if (nav != null)
+                {
+                    var relativePath = nav.ToBaseRelativePath(nav.Uri);
+                    var returnUrl = "/" + (string.IsNullOrEmpty(relativePath) ? "" : relativePath);
+                    nav.NavigateTo($"/identity/login?returnUrl={Uri.EscapeDataString(returnUrl)}");
+                }
+            }
+            catch
+            {
+                // ignore - navigation not available on server side
+            }
         }
 
         private bool IsTokenExpired(string token)
