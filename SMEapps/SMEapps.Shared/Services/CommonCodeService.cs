@@ -19,17 +19,17 @@ public class CommonCodeService
 
     private HttpClient ApiClient => _httpClientFactory.CreateClient("ApiClient");
 
-    public async Task<List<Model.CommonCodeModel>> GetCommonCode()
-    {
-        try
-        {
+    //public async Task<List<Model.CommonCodeModel>> GetCommonCode()
+    //{
+    //    try
+    //    {
 
-        }catch(Exception ex)
-        {
-            var response = await ApiClient.GetAsync("")
-        }
+    //    }catch(Exception ex)
+    //    {
+    //        var response = await ApiClient.GetAsync("")
+    //    }
 
-    }
+    //}
 
 
 }
