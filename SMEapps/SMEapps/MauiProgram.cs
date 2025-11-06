@@ -27,6 +27,9 @@ namespace SMEapps
             }).AddHttpMessageHandler<AuthHeader>();
             builder.Services.AddTransient<AuthHeader>();
 
+            // Register DashboardService
+            builder.Services.AddScoped<DashboardService>();
+            
             builder.Services.AddMauiBlazorWebView();
             builder.Services.AddFluentUIComponents();
 

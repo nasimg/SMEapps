@@ -13,6 +13,9 @@ builder.Services.AddFluentUIComponents();
 builder.Services.AddSingleton<IFormFactor, FormFactor>();
 builder.Services.AddSingleton<ISStore, SStore>();
 
+// Register DashboardService
+builder.Services.AddScoped<DashboardService>();
+
 // Register AuthHeader handler so it can be added to HttpClient pipeline
 builder.Services.AddTransient<AuthHeader>();
 

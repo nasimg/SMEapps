@@ -83,6 +83,9 @@ builder.Services.AddScoped<AuthenticationStateProvider>(sp => sp.GetRequiredServ
 builder.Services.AddAuthorization();
 builder.Services.AddCascadingAuthenticationState();
 
+// Register DashboardService for role-based navigation
+builder.Services.AddScoped<SMEapps.Shared.Services.DashboardService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

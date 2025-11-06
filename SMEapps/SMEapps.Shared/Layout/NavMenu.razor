@@ -1,16 +1,123 @@
-﻿<div class="navmenu">
+﻿@using SMEapps.Shared.Model
+@using SMEapps.Shared.Services
+<div class="navmenu">
     <input type="checkbox" title="Menu expand/collapse toggle" id="navmenu-toggle" class="navmenu-icon" />
     <label for="navmenu-toggle" class="navmenu-icon"><FluentIcon Value="@(new Icons.Regular.Size20.Navigation())" Color="Color.Fill" /></label>
     <nav class="sitenav" aria-labelledby="main-menu">
         <FluentNavMenu Id="main-menu" Collapsible="true" Width="250" Title="Navigation menu" @bind-Expanded="expanded" CustomToggle="true">
-            <FluentNavLink Href="/" Match="NavLinkMatch.All" Icon="@(new Icons.Regular.Size20.Home())" IconColor="Color.Accent">Home</FluentNavLink>
-            <FluentNavLink Href="counter" Icon="@(new Icons.Regular.Size20.NumberSymbolSquare())" IconColor="Color.Accent">Counter</FluentNavLink>
-            <FluentNavLink Href="weather" Icon="@(new Icons.Regular.Size20.WeatherPartlyCloudyDay())" IconColor="Color.Accent">Weather</FluentNavLink>
-            <FluentNavLink Href="/perametersetup/branches" Icon="@(new Icons.Regular.Size20.WeatherPartlyCloudyDay())" IconColor="Color.Accent">Weather</FluentNavLink>
+            @if (!isLoaded)
+            {
+                <FluentNavLink Icon="@(new Icons.Regular.Size20.Home())" IconColor="Color.Accent">Loading...</FluentNavLink>
+            }
+            else if (modules?.Any() == true)
+            {
+                @foreach (var module in modules.OrderBy(m => m.MenuPosition))
+                {
+                    var moduleKey = (module.Name ?? "").Trim();
+                    // If module has features, render as collapsible header (no parent navigation)
+                    if (module.Features?.Any() == true)
+                    {
+                        <div class="module-header" style="display:flex; align-items:center; justify-content:space-between;">
+                            <div style="display:flex; align-items:center; gap:0.5rem;">
+                                @* Optionally show an icon if provided *@
+                                @if (!string.IsNullOrWhiteSpace(module.Icon))
+                                {
+                                    <FluentIcon Value="@(new Icons.Regular.Size20.Navigation())" />
+                                }
+                                <span>@module.Name</span>
+                            </div>
+                            <div>
+                                <FluentButton OnClick="@(() => ToggleModule(moduleKey))">
+                                    @if (IsModuleExpanded(moduleKey))
+                                    {
+                                        <FluentIcon Value="@(new Icons.Regular.Size20.ChevronDown())" />
+                                    }
+                                    else
+                                    {
+                                        <FluentIcon Value="@(new Icons.Regular.Size20.ChevronRight())" />
+                                    }
+                                </FluentButton>
+                            </div>
+                        </div>
+
+                        @if (IsModuleExpanded(moduleKey))
+                        {
+                            foreach (var feat in module.Features.OrderBy(f => f.OrderNo))
+                            {
+                                if (!string.IsNullOrWhiteSpace(feat.Path))
+                                {
+                                    <FluentNavLink Href="@feat.Path" Style="padding-left:1.25rem; font-size:0.95rem;">@feat.FeatureName</FluentNavLink>
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        // Leaf module: render as a regular nav link
+                        <FluentNavLink Href="@module.Url" IconColor="Color.Accent">@module.Name</FluentNavLink>
+                    }
+                }
+            }
+            
         </FluentNavMenu>
     </nav>
 </div>
 
 @code {
+    [Inject] private DashboardService DashboardService { get; set; } = default!;
+    [Inject] private ISStore SStore { get; set; } = default!;
+
     private bool expanded = true;
+    private bool isLoaded = false;
+    private List<ModuleWithFeatures>? modules;
+
+    // Track expanded modules by a key (module name). Use a HashSet for O(1) checks.
+    private readonly HashSet<string> expandedModules = new();
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+            return; 
+      
+        string? roleName = null;
+        roleName = await SStore.GetAsync<string>("roleName");
+        
+
+
+        if (string.IsNullOrWhiteSpace(roleName))
+        {
+            isLoaded = true;
+            StateHasChanged();
+            return;
+        }
+
+        try
+        {
+            modules = await DashboardService.GetModulesByRoleNameAsync(roleName);
+        }
+        catch
+        {
+            modules = new List<ModuleWithFeatures>();
+        }
+        finally
+        {
+            isLoaded = true;
+            StateHasChanged();
+        }
+    }
+
+    private void ToggleModule(string moduleKey)
+    {
+        if (string.IsNullOrWhiteSpace(moduleKey))
+            return;
+
+        if (expandedModules.Contains(moduleKey))
+            expandedModules.Remove(moduleKey);
+        else
+            expandedModules.Add(moduleKey);
+
+        StateHasChanged();
+    }
+
+    private bool IsModuleExpanded(string moduleKey) => !string.IsNullOrWhiteSpace(moduleKey) && expandedModules.Contains(moduleKey);
 }
