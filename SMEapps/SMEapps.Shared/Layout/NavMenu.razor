@@ -1,12 +1,17 @@
 ﻿@using SMEapps.Shared.Model
 @using SMEapps.Shared.Services
-<div class="navmenu">
-    <input type="checkbox" title="Menu expand/collapse toggle" id="navmenu-toggle" class="navmenu-icon" />
-    <label for="navmenu-toggle" class="navmenu-icon"></label>
-    <nav class="sitenav" aria-labelledby="main-menu">
-
-    </nav>
-</div>
+<MudPaper Width="250px" Elevation="0" Class="py-3">
+    <MudNavMenu Bordered="true">
+        <MudNavLink Href="/dashboard">Dashboard</MudNavLink>
+        <MudNavLink Match="NavLinkMatch.Prefix" Href="/components/navmenu">Servers</MudNavLink>
+        <MudNavLink Href="/billing" Disabled="true">Billing</MudNavLink>
+        <MudNavGroup Title="Settings" Expanded="true">
+            <MudNavLink Href="/users">Users</MudNavLink>
+            <MudNavLink Href="/security">Security</MudNavLink>
+        </MudNavGroup>
+        <MudNavLink Href="/about">About</MudNavLink>
+    </MudNavMenu>
+</MudPaper>
 
 @code {
     [Inject] private DashboardService DashboardService { get; set; } = default!;

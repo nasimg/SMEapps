@@ -1,18 +1,21 @@
 using Anudan.Web.Client.Services;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.IdentityModel.Tokens;
+using MudBlazor.Services;
 using SMEapps.Shared.Services;
 using SMEapps.Web.Client.Services;
 using SMEapps.Web.Client.Services.SStore;
 using SMEapps.Web.Components;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveWebAssemblyComponents();
+
+builder.Services.AddMudServices();
 
 builder.Services.AddSingleton<IFormFactor, FormFactor>();
 builder.Services.AddScoped<ISStore, SStore>();
@@ -86,6 +89,7 @@ builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddScoped<SMEapps.Shared.Services.DashboardService>();
 
 var app = builder.Build();
+app.MapStaticAssets();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

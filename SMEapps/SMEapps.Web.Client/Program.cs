@@ -1,13 +1,14 @@
 using Anudan.Web.Client.Services;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using MudBlazor.Services;
 using SMEapps.Shared.Services;
 using SMEapps.Web.Client.Services;
 using SMEapps.Web.Client.Services.SStore;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 //builder.Services.AddFluentUIComponents();
-
+builder.Services.AddMudServices();
 // Add device-specific services used by the SMEapps.Shared project
 builder.Services.AddSingleton<IFormFactor, FormFactor>();
 builder.Services.AddSingleton<ISStore, SStore>();

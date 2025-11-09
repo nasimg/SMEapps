@@ -6,13 +6,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <base href="/" />
     <link rel="stylesheet" href="@Assets["_content/SMEapps.Shared/app.css"]" />
-    <link rel="stylesheet" href="@Assets["SMEapps.Web.styles.css"]" />
     <link rel="icon" type="image/x-icon" href="_content/SMEapps.Shared/favicon.ico" />
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" rel="stylesheet" />
+    <link href="@Assets["_content/MudBlazor/MudBlazor.min.css"]" rel="stylesheet" />
+    <link href="https://rsms.me/inter/inter.css" rel="stylesheet">
     <HeadOutlet @rendermode="InteractiveWebAssembly" />
 </head>
 
 <body>
     <Routes @rendermode="InteractiveWebAssembly" />
+    <script src="@Assets["_content/MudBlazor/MudBlazor.min.js"]"></script>
+
     <script src="_framework/blazor.web.js"></script>
 </body>
 

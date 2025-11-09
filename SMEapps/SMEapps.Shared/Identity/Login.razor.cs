@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Forms;
 using SMEapps.Shared.Model;
 using SMEapps.Shared.Services;
@@ -16,6 +17,7 @@ namespace SMEapps.Shared.Identity
         [Inject] public IHttpClientFactory HttpClientFactory { get; set; } = default!;
         [Inject] public SMEapps.Shared.Services.ISStore SStore { get; set; } = default!;
         [Inject] public NavigationManager NavigationManager { get; set; } = default!;
+        [Inject] public AuthenticationStateProvider AuthProvider { get; set; } = default!;
         private HttpClient ApiClient => HttpClientFactory.CreateClient("ApiClient");
 
 

@@ -1,39 +1,98 @@
 ﻿@inherits LayoutComponentBase
 
-<FluentLayout Class="identiy-container">
-    @* <FluentHeader Style="text-align:center; font-size:2rem; font-weight:bold; background:#fff;">
-        SME
-    </FluentHeader> *@
-    <FluentBodyContent Class="identity-layout">
-        <FluentCard Class="identity-card">
-            @Body
-        </FluentCard>
-        <FluentDialogProvider />
-    </FluentBodyContent>
-</FluentLayout>
+<MudThemeProvider @bind-IsDarkMode="@_isDarkMode" Theme="_currentTheme" />
 
-<style>
-    .identiy-container {
-        min-height: 100vh;
-        vertical-align: middle;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        background: linear-gradient(135deg, #f5f6fa 0%, #e3e9f7 100%);
+<MudLayout>
+    <MudMainContent>
+        <div class="d-flex align-center justify-center" style="min-height: 90vh">
+            @Body
+        </div>
+    </MudMainContent>
+</MudLayout>
+
+
+
+@code {
+    private bool _drawerOpen = true;
+    private bool _isDarkMode;
+    private MudTheme _currentTheme = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        // restore saved preference
+        // var saved = await JS.InvokeAsync<string>("localStorage.getItem", "isDarkMode");
+        // _isDarkMode = saved == "true";
+        UpdateTheme();
     }
-    .identity-layout {
-        min-height: 100vh;
-        display: flex;
-        flex-direction: inherit;
-        justify-content: center;
-        align-items: center;
-        background: #f5f6fa;
+
+    private void DrawerToggle() => _drawerOpen = !_drawerOpen;
+
+    private async Task ThemeChanged(bool dark)
+    {
+        _isDarkMode = dark;
+        // await JS.InvokeVoidAsync("localStorage.setItem", "isDarkMode", dark);
+        UpdateTheme();
+        StateHasChanged();
     }
-    .identity-card {
-        width: 100%;
-        padding: 2rem 1.5rem;
-        box-shadow: 0 4px 24px rgba(0,0,0,0.08);
-        border-radius: 16px;
-        background: #fff;
-    }
-</style>
+
+    private void UpdateTheme() => _currentTheme = _isDarkMode ? DarkTheme() : LightTheme();
+
+    private MudTheme LightTheme() => new()
+    {
+        PaletteLight = new PaletteLight
+        {
+            Primary = "#4F46E5",            // Deep indigo (brand color)
+            Secondary = "#6366F1",          // Softer indigo accent
+            Tertiary = "#10B981",           // Emerald green for highlights
+            Background = "#F9FAFB",         // Subtle off-white background
+            Surface = "#FFFFFF",            // Clean card and content background
+            DrawerBackground = "#FFFFFF",   // Matches the surface for consistency
+            AppbarBackground = "#FFFFFF",   // White app bar for premium look
+            AppbarText = "#111827",         // Almost black text for contrast
+            TextPrimary = "#1F2937",        // Dark slate text
+            TextSecondary = "#6B7280",      // Muted gray secondary text
+            Divider = "#E5E7EB",            // Soft divider line
+            ActionDefault = "#4F46E5",      // For active states
+            Info = "#3B82F6",               // Modern blue
+            Success = "#22C55E",            // Green success
+            Warning = "#EAB308",            // Vibrant amber
+            Error = "#EF4444",              // Red-500 for errors
+            OverlayLight = "rgba(79,70,229,0.05)", // Soft hover overlay
+        },
+
+        Typography = new Typography
+        {
+            Default = new DefaultTypography
+            {
+                FontFamily = new[] { "Inter", "Roboto", "sans-serif" }
+            }
+        },
+
+        LayoutProperties = new LayoutProperties { DrawerWidthLeft = "260px" }
+    };
+
+    private MudTheme DarkTheme() => new()
+    {
+        PaletteDark = new PaletteDark
+        {
+            Primary = "#818CF8",           // Indigo-400, visible on dark background
+            Secondary = "#F472B6",         // Pink-400
+            Tertiary = "#6EE7B7",          // Emerald-300
+            Background = "#0F172A",        // Very dark navy
+            AppbarBackground = "#1E293B",  // Dark gray-blue
+            DrawerBackground = "#1E293B",
+            Surface = "#1E293B",
+            TextPrimary = "#F8FAFC",       // Light text
+            TextSecondary = "#94A3B8",     // Soft gray
+            Info = "#60A5FA",              // Blue accent
+            Success = "#4ADE80",           // Bright green
+            Warning = "#FACC15",           // Yellow accent
+            Error = "#F87171"              // Light red
+        },
+
+        LayoutProperties = new LayoutProperties { DrawerWidthLeft = "260px" }
+    };
+
+
+
+}

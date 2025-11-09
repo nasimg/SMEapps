@@ -1,8 +1,8 @@
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-
+using MudBlazor.Services;
 using SMEapps.Services;
 using SMEapps.Shared.Services;
-using Microsoft.Extensions.DependencyInjection;
 
 
 namespace SMEapps
@@ -33,6 +33,7 @@ namespace SMEapps
             builder.Services.AddScoped<DashboardService>();
             
             builder.Services.AddMauiBlazorWebView();
+            builder.Services.AddMudServices();
 
 
 #if DEBUG
