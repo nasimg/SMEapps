@@ -1,6 +1,9 @@
 ﻿@inherits LayoutComponentBase
 
 <MudThemeProvider @bind-IsDarkMode="@_isDarkMode" Theme="_currentTheme" />
+<MudDialogProvider />
+<MudSnackbarProvider />
+<MudPopoverProvider />
 
 <MudLayout>
     <MudAppBar Elevation="0">
