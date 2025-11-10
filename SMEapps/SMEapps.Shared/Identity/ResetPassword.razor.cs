@@ -1,36 +1,53 @@
 ﻿using Microsoft.AspNetCore.Components;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
+using MudBlazor;
 using SMEapps.Shared.Model;
+using System;
+using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace SMEapps.Shared.Identity
 {
-    public partial class ResetPassword
+    public partial class ResetPassword : ComponentBase
     {
-        private ResetPasswordModel resetModel = new();
+        protected ResetPasswordModel resetModel = new();
+        protected bool isLoading = false;
        
-        private bool isLoading = false;
+        [Inject] protected NavigationManager Nav { get; set; } = default!;
+        [Inject] protected IHttpClientFactory ClientFactory { get; set; } = default!;
+        [Inject] protected ISnackbar Snackbar { get; set; } = default!;
 
         protected override void OnInitialized()
         {
+            try
+            {
             var uri = Nav.ToAbsoluteUri(Nav.Uri);
             var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
             resetModel.Email = query["email"];
             resetModel.ResetPasswordToken = query["token"];
+
+                if (string.IsNullOrWhiteSpace(resetModel.Email) || string.IsNullOrWhiteSpace(resetModel.ResetPasswordToken))
+                {
+                    Snackbar.Add("Invalid reset link.", Severity.Error);
+                    Nav.NavigateTo("/identity/login");
+                }
+            }
+            catch
+            {
+                Snackbar.Add("Invalid link format.", Severity.Error);
+                Nav.NavigateTo("/identity/login");
+        }
         }
 
-        private async Task ResetPasswordHandler()
+        protected async Task ResetPasswordHandler()
         {
-            //if (resetModel.NewPassword != resetModel.ConfirmPassword)
-            //{
-            //    ToastService.ShowError("Passwords do not match!");
-            //    return;
-            //}
+            Snackbar.Add("ResetPasswordHandler called.", Severity.Info); // test line
+            if (resetModel.NewPassword != resetModel.ConfirmPassword)
+            {
+                Snackbar.Add("Passwords do not match!", Severity.Error);
+                return;
+            }
 
             await SubmitResetPassword();
         }
@@ -50,6 +67,7 @@ namespace SMEapps.Shared.Identity
                     NewPassword = resetModel.NewPassword
                 };
 
+              
                 var response = await client.PostAsJsonAsync("Identity/ForgotPassword", payload);
 
                 if (response.IsSuccessStatusCode)
@@ -57,24 +75,24 @@ namespace SMEapps.Shared.Identity
                     var result = await response.Content.ReadFromJsonAsync<Responses>();
                     if (result?.IsSuccess == true)
                     {
-                        //await Task.Delay(1000);
-                        //ToastService.ShowSuccess("Password reset successfully!");
-                        //Nav.NavigateTo("/identity/login");
+                        Snackbar.Add("Password reset successfully!", Severity.Success);
+                        await Task.Delay(1000);
+                        Nav.NavigateTo("/identity/login");
                     }
                     else
                     {
-                        //ToastService.ShowError(result?.Message ?? "Failed to reset password.");
+                        Snackbar.Add(result?.Message ?? "Failed to reset password.", Severity.Error);
                     }
                 }
                 else
                 {
-                    //var error = await response.Content.ReadAsStringAsync();
-                    //ToastService.ShowError($"Server error: {response.StatusCode} - {error}");
+                    var error = await response.Content.ReadAsStringAsync();
+                    Snackbar.Add($"Server error: {response.StatusCode} - {error}", Severity.Error);
                 }
             }
             catch (Exception ex)
             {
-                //ToastService.ShowError($"Error: {ex.Message}");
+                Snackbar.Add($"Error: {ex.Message}", Severity.Error);
             }
             finally
             {

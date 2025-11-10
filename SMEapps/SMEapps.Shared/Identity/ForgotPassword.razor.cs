@@ -3,63 +3,78 @@ using System.ComponentModel.DataAnnotations;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
+using MudBlazor;
 using SMEapps.Shared.Model;
+using System.ComponentModel.DataAnnotations;
+using System.Net.Http.Json;
 
-namespace SMEapps.Shared.Identity
+namespace SMEapps.Shared.Identity;
+
+public partial class ForgotPassword : ComponentBase, IDisposable
 {
-    public partial class ForgotPassword
-    {
-        private EmailModel emailModel = new();
-        private bool isLoading = false;
+    [Inject] private IHttpClientFactory ClientFactory { get; set; } = default!;
+    [Inject] private NavigationManager Nav { get; set; } = default!;
+    [Inject] private ISnackbar Snackbar { get; set; } = default!;
 
-        //[Inject] private IHttpClientFactory ClientFactory { get; set; } = default!;
-        //[Inject] private NavigationManager Nav { get; set; } = default!;
+    private HttpClient Api => ClientFactory.CreateClient("ApiClient");
    
+    private readonly EmailModel _model = new();
+    private bool _isLoading;
 
-        private async Task SendResetEmail()
+    protected async Task HandleValidSubmit()
         {
-            isLoading = true;
+        _isLoading = true;
+        StateHasChanged();
+
             try
             {
-                var client = ClientFactory.CreateClient("ApiClient");
-                var response = await client.GetAsync($"Identity/GetForgotToken/{emailModel.Email}");
+            var response = await Api.GetAsync($"Identity/GetForgotToken/{Uri.EscapeDataString(_model.Email)}");
 
-                if (response.IsSuccessStatusCode)
+            if (!response.IsSuccessStatusCode)
                 {
+                Snackbar.Add("Email not found.", Severity.Error);
+                return;
+            }
+
                     var result = await response.Content.ReadFromJsonAsync<Responses>();
 
-                    if (result != null && result.IsSuccess)
+            if (result?.IsSuccess == true)
                     {
-                        //ToastService.ShowSuccess("Token generated successfully!");
+                Snackbar.Add("Reset link generated!", Severity.Success);
+                await Task.Delay(800);
 
-                        await Task.Delay(1000);
-                        Nav.NavigateTo($"/identity/reset-password?email={Uri.EscapeDataString(result.Email ?? emailModel.Email)}&token={Uri.EscapeDataString(result.Token ?? "")}");
-                    }
-                    else
-                    {
-                        //ToastService.ShowError(result?.Message ?? "Something went wrong.");
-                    }
+                var uri = Nav.ToAbsoluteUri(
+                    $"/identity/reset-password?email={Uri.EscapeDataString(result.Email ?? _model.Email)}" +
+                    $"&token={Uri.EscapeDataString(result.Token ?? "")}");
+
+                Nav.NavigateTo(uri.ToString());
                 }
                 else
                 {
-                    //ToastService.ShowError("Email not found.");
+                Snackbar.Add(result?.Message ?? "Something went wrong.", Severity.Error);
                 }
             }
             catch (Exception ex)
             {
-                //ToastService.ShowError($"Error: {ex.Message}");
+            Snackbar.Add($"Error: {ex.Message}", Severity.Error);
             }
             finally
             {
-                isLoading = false;
+            _isLoading = false;
+            StateHasChanged();
             }
         }
 
-        public class EmailModel
+    public void Dispose() { /* HttpClient is managed by the factory */ }
+
+    // --------------------------------------------------------------------
+    // Inner model – validation attributes are honoured by <DataAnnotationsValidator />
+    // --------------------------------------------------------------------
+    private sealed class EmailModel
         {
-            [Required, EmailAddress]
-            public string Email { get; set; } = "";
-        }
+        [Required(ErrorMessage = "Email is required")]
+        [EmailAddress(ErrorMessage = "Invalid email address")]
+        public string Email { get; set; } = string.Empty;
     }
 
 }
