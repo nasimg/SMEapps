@@ -65,7 +65,7 @@ namespace SMEapps.Shared.Identity
                     NewPassword = resetModel.NewPassword
                 };
 
-                // 👇 Double-check your endpoint name here!
+              
                 var response = await client.PostAsJsonAsync("Identity/ForgotPassword", payload);
 
                 if (response.IsSuccessStatusCode)

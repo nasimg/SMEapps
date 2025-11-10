@@ -1,0 +1,216 @@
+﻿@page "/person-info"
+@using System.ComponentModel.DataAnnotations
+@inherits ComponentBase
+
+<MudContainer MaxWidth="MaxWidth.False" Class="pa-4">
+    <MudPaper Class="pa-6">
+
+        <MudText Typo="Typo.h5" Class="mb-2">Person Profile</MudText>
+        <MudText Typo="Typo.caption" Class="mb-4">Fill out the fields below. All details are visible on one page.</MudText>
+
+        <MudForm @ref="_form">
+            <!-- 🧍 Personal Information -->
+            <MudText Typo="Typo.h6" Class="mt-4 mb-2">🧍 Personal Information</MudText>
+            <MudDivider Class="mb-3" />
+
+            <MudGrid Spacing="2">
+                <MudItem xs="12" sm="6" md="3"><MudTextField Label="Title" @bind-Value="_model.Title" /></MudItem>
+                <MudItem xs="12" sm="6" md="3"><MudTextField Label="First Name" @bind-Value="_model.FirstName" Required="true" /></MudItem>
+                <MudItem xs="12" sm="6" md="3"><MudTextField Label="Middle Name" @bind-Value="_model.MiddleName" /></MudItem>
+                <MudItem xs="12" sm="6" md="3"><MudTextField Label="Last Name" @bind-Value="_model.LastName" Required="true" /></MudItem>
+                <MudItem xs="12" sm="6" md="3"><MudTextField Label="Short Name" @bind-Value="_model.ShortName" /></MudItem>
+                <MudItem xs="12" sm="6" md="3"><MudTextField Label="Full Name" @bind-Value="_model.Name" /></MudItem>
+                <MudItem xs="12" sm="6" md="3">
+                    <MudSelect Label="Gender" @bind-Value="_model.Gender">
+                        @* <MudSelectItem Value="M">Male</MudSelectItem>
+                        <MudSelectItem Value="F">Female</MudSelectItem>
+                        <MudSelectItem Value="O">Other</MudSelectItem> *@
+                    </MudSelect>
+                </MudItem>
+                <MudItem xs="12" sm="6" md="3">
+                    <MudDatePicker Label="Date of Birth" @bind-Date="_model.DateOfBirth" MaxDate="@DateTime.Today" Required="true" />
+                </MudItem>
+                <MudItem xs="12" sm="6" md="3"><MudTextField Label="District of Birth" @bind-Value="_model.DistrictOfBirth" /></MudItem>
+                <MudItem xs="12" sm="6" md="3"><MudTextField Label="Age" @bind-Value="_model.Age" /></MudItem>
+                <MudItem xs="12" sm="6" md="3"><MudTextField Label="Nationality" @bind-Value="_model.Nationality" /></MudItem>
+                <MudItem xs="12" sm="6" md="3"><MudTextField Label="Religion" @bind-Value="_model.Religion" /></MudItem>
+                <MudItem xs="12" sm="6" md="3"><MudTextField Label="Marital Status" @bind-Value="_model.MaritalStatus" /></MudItem>
+            </MudGrid>
+
+            <!-- 👨‍👩‍👧 Family Details -->
+            <MudText Typo="Typo.h6" Class="mt-6 mb-2">👨‍👩‍👧 Family Details</MudText>
+            <MudDivider Class="mb-3" />
+
+            <MudGrid Spacing="2">
+                <MudItem xs="12" sm="6" md="3"><MudTextField Label="Father Title" @bind-Value="_model.FatherTitle" /></MudItem>
+                <MudItem xs="12" sm="6" md="3"><MudTextField Label="Father Name" @bind-Value="_model.FatherName" /></MudItem>
+                <MudItem xs="12" sm="6" md="3"><MudTextField Label="Mother Title" @bind-Value="_model.MotherTitle" /></MudItem>
+                <MudItem xs="12" sm="6" md="3"><MudTextField Label="Mother Name" @bind-Value="_model.MotherName" /></MudItem>
+                <MudItem xs="12" sm="6" md="3"><MudTextField Label="Spouse Title" @bind-Value="_model.SpouseTitle" /></MudItem>
+                <MudItem xs="12" sm="6" md="3"><MudTextField Label="Spouse Name" @bind-Value="_model.SpouseName" /></MudItem>
+            </MudGrid>
+
+            <!-- 🪪 Identification -->
+            <MudText Typo="Typo.h6" Class="mt-6 mb-2">🪪 Identification</MudText>
+            <MudDivider Class="mb-3" />
+
+            <MudGrid Spacing="2">
+                <MudItem xs="12" sm="6" md="3"><MudTextField Label="National ID No" @bind-Value="_model.NationalIdNo" /></MudItem>
+                <MudItem xs="12" sm="6" md="3"><MudTextField Label="Smart NID" @bind-Value="_model.SmartNid" /></MudItem>
+                <MudItem xs="12" sm="6" md="3"><MudTextField Label="Birth Certificate No" @bind-Value="_model.BirthCertificateNo" /></MudItem>
+                <MudItem xs="12" sm="6" md="3"><MudTextField Label="TIN No" @bind-Value="_model.TinNo" /></MudItem>
+                <MudItem xs="12" sm="6" md="3"><MudTextField Label="ID Type" @bind-Value="_model.IdType" /></MudItem>
+            </MudGrid>
+
+            
+            @* <MudText Typo="Typo.h6" Class="mt-6 mb-2">🏠 Address Information</MudText>
+            <MudDivider Class="mb-3" /> *@
+            <SMEapps.Shared.Components.Shared.PersonAddressInfo></SMEapps.Shared.Components.Shared.PersonAddressInfo>
+            @* <MudTabs>
+                <MudTabPanel Text="Present">
+                    <MudGrid Spacing="2">
+                        <MudItem xs="12" sm="6" md="6"><MudTextField Label="Present Address" @bind-Value="_model.PresentAddress" /></MudItem>
+                        <MudItem xs="12" sm="6" md="2"><MudTextField Label="Thana Code" @bind-Value="_model.ThanaCode" /></MudItem>
+                        <MudItem xs="12" sm="6" md="2"><MudTextField Label="Area Code" @bind-Value="_model.AreaCode" /></MudItem>
+                        <MudItem xs="12" sm="6" md="2"><MudTextField Label="Postal Code" @bind-Value="_model.PostalCode" /></MudItem>
+                        <MudItem xs="12"><MudSwitch T="bool" Label="Same as Permanent" @bind-Checked="_sameAsPermanent" OnChanged="HandleSameAsPermanentChanged" /></MudItem>
+                    </MudGrid>
+                </MudTabPanel>
+
+                <MudTabPanel Text="Permanent">
+                    <MudGrid Spacing="2">
+                        <MudItem xs="12" sm="6" md="6"><MudTextField Label="Permanent Address" @bind-Value="_model.PermanentAddress" /></MudItem>
+                        <MudItem xs="12" sm="6" md="3"><MudTextField Label="Area Code" @bind-Value="_model.PermanentAreaCode" /></MudItem>
+                        <MudItem xs="12" sm="6" md="3"><MudTextField Label="Thana Code" @bind-Value="_model.PermanentThanaCode" /></MudItem>
+                    </MudGrid>
+                </MudTabPanel>
+            </MudTabs> *@
+
+            <!-- 💼 Professional -->
+            <MudText Typo="Typo.h6" Class="mt-6 mb-2">💼 Professional Details</MudText>
+            <MudDivider Class="mb-3" />
+
+            <MudGrid Spacing="2">
+                <MudItem xs="12" sm="6" md="3"><MudTextField Label="Profession" @bind-Value="_model.Profession" /></MudItem>
+                <MudItem xs="12" sm="6" md="3"><MudTextField Label="Designation" @bind-Value="_model.Designation" /></MudItem>
+                <MudItem xs="12" sm="6" md="3"><MudTextField Label="Business Name" @bind-Value="_model.BusinessName" /></MudItem>
+                <MudItem xs="12" sm="6" md="6"><MudTextField Label="Office Address" @bind-Value="_model.OfficeAddress" /></MudItem>
+            </MudGrid>
+
+            <!-- 🛂 Passport -->
+            <MudText Typo="Typo.h6" Class="mt-6 mb-2">🛂 Passport & Licenses</MudText>
+            <MudDivider Class="mb-3" />
+
+            <MudGrid Spacing="2">
+                <MudItem xs="12" sm="6" md="3"><MudTextField Label="Passport No" @bind-Value="_model.PassNo" /></MudItem>
+                <MudItem xs="12" sm="6" md="3"><MudDatePicker Label="Passport Issue Date" @bind-Date="_model.PassIssueDt" /></MudItem>
+                <MudItem xs="12" sm="6" md="3"><MudTextField Label="Issue Place" @bind-Value="_model.PassIssuePlace" /></MudItem>
+            </MudGrid>
+
+            <!-- 📜 Trade -->
+            <MudText Typo="Typo.h6" Class="mt-6 mb-2">📜 Trade & Registration</MudText>
+            <MudDivider Class="mb-3" />
+
+            <MudGrid Spacing="2">
+                <MudItem xs="12" sm="6" md="3"><MudTextField Label="Trade License" @bind-Value="_model.TradeLicense" /></MudItem>
+                <MudItem xs="12" sm="6" md="3"><MudDatePicker Label="Issue Date" @bind-Date="_model.IssueDate" /></MudItem>
+                <MudItem xs="12" sm="6" md="3"><MudTextField Label="Authority" @bind-Value="_model.IssueAuthority" /></MudItem>
+            </MudGrid>
+
+            <!-- 🧾 Others -->
+            <MudText Typo="Typo.h6" Class="mt-6 mb-2">🧾 Others</MudText>
+            <MudDivider Class="mb-3" />
+
+            <MudGrid Spacing="2">
+                <MudItem xs="12" sm="6" md="3"><MudTextField Label="Ansar Reg No" @bind-Value="_model.AnsarRegNo" /></MudItem>
+                <MudItem xs="12" sm="6" md="3"><MudTextField Label="Ansar Bat No" @bind-Value="_model.AnsarBatNo" /></MudItem>
+            </MudGrid>
+
+            <!-- Sticky Action Bar -->
+            <MudPaper Class="mt-6 d-flex justify-end gap-2 pa-2 mud-elevation-6"
+                      Style="position:sticky; bottom:0; background: var(--mud-palette-surface); z-index:10;">
+                <MudButton Variant="Variant.Text" OnClick="Reset">Reset</MudButton>
+                <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="Save">Save</MudButton>
+            </MudPaper>
+        </MudForm>
+    </MudPaper>
+</MudContainer>
+
+@code {
+    private MudForm? _form;
+    private bool _sameAsPermanent;
+    private PersonModel _model = new() { DateOfBirth = DateTime.Today, PassIssueDt = DateTime.Today };
+
+    private void HandleSameAsPermanentChanged(bool value)
+    {
+        _sameAsPermanent = value;
+        if (_sameAsPermanent)
+        {
+            _model.PermanentAddress = _model.PresentAddress;
+            _model.PermanentAreaCode = _model.AreaCode;
+            _model.PermanentThanaCode = _model.ThanaCode;
+        }
+    }
+
+    private async Task Save()
+    {
+        await _form!.Validate();
+        if (_form.IsValid)
+        {
+            // Save logic here
+        }
+    }
+
+    private void Reset() => _model = new PersonModel();
+    public class PersonModel
+    {
+        public string? Title { get; set; }
+        public string? FirstName { get; set; }
+        public string? LastName { get; set; }
+        public string? MiddleName { get; set; }
+        public string? ShortName { get; set; }
+        public string? Name { get; set; }
+        public string? Gender { get; set; }
+        public DateTime? DateOfBirth { get; set; }
+        public string? DistrictOfBirth { get; set; }
+        public string? Age { get; set; }
+        public string? Nationality { get; set; }
+        public string? Religion { get; set; }
+        public string? MaritalStatus { get; set; }
+        public string? FatherTitle { get; set; }
+        public string? FatherName { get; set; }
+        public string? MotherTitle { get; set; }
+        public string? MotherName { get; set; }
+        public string? SpouseTitle { get; set; }
+        public string? SpouseName { get; set; }
+        public string? NationalIdNo { get; set; }
+        public string? SmartNid { get; set; }
+        public string? BirthCertificateNo { get; set; }
+        public string? TinNo { get; set; }
+        public string? IdType { get; set; }
+        public string? Email { get; set; }
+        public string? MobileNo { get; set; }
+        public string? TelephoneResident { get; set; }
+        public string? TelephoneOffice { get; set; }
+        public string? FaxNo { get; set; }
+        public string? PresentAddress { get; set; }
+        public string? ThanaCode { get; set; }
+        public string? AreaCode { get; set; }
+        public string? PostalCode { get; set; }
+        public string? PermanentAddress { get; set; }
+        public string? PermanentAreaCode { get; set; }
+        public string? PermanentThanaCode { get; set; }
+        public string? Profession { get; set; }
+        public string? Designation { get; set; }
+        public string? BusinessName { get; set; }
+        public string? OfficeAddress { get; set; }
+        public string? PassNo { get; set; }
+        public DateTime? PassIssueDt { get; set; }
+        public string? PassIssuePlace { get; set; }
+        public string? TradeLicense { get; set; }
+        public DateTime? IssueDate { get; set; }
+        public string? IssueAuthority { get; set; }
+        public string? AnsarRegNo { get; set; }
+        public string? AnsarBatNo { get; set; }
+    }
+}

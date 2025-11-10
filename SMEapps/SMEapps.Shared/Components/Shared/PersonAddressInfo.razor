@@ -1,0 +1,179 @@
+﻿@using SMEapps.Shared.Model
+@inject HttpClient Http
+@inject ISnackbar Snackbar
+@using MudBlazor
+
+<MudPaper Class="pa-4">
+    <MudText Typo="Typo.h6" Class="mt-6 mb-2">🏠 Address Information</MudText>
+    <MudDivider Class="mb-3" />
+
+    <MudTabs>
+        <!-- Present Address -->
+        <MudTabPanel Text="Present">
+            <MudGrid Spacing="2">
+                <MudItem xs="12" sm="6" md="6">
+                    <MudTextField Label="Address Line 1"
+                                  @bind-Value="_present.AddressLine1" />
+                </MudItem>
+
+                <MudItem xs="12" sm="6" md="6">
+                    <MudTextField Label="Address Line 2"
+                                  @bind-Value="_present.AddressLine2" />
+                </MudItem>
+
+                <MudItem xs="12" sm="6" md="4">
+                    <MudTextField T="int?" Label="Location Code"
+                                  @bind-Value="_present.LocationCode" />
+                </MudItem>
+
+                <MudItem xs="12">
+                    <MudTextField Label="Remarks"
+                                  @bind-Value="_present.Remarks"
+                                  Lines="2" />
+                </MudItem>
+
+                <MudItem xs="12">
+                    <MudSwitch T="bool"
+                               Label="Same as Permanent"
+                               @bind-Checked="_sameAsPermanent"
+                               OnChanged="HandleSameAsPermanentChanged" />
+                </MudItem>
+            </MudGrid>
+        </MudTabPanel>
+
+        <!-- Permanent Address -->
+        <MudTabPanel Text="Permanent">
+            <MudGrid Spacing="2">
+                <MudItem xs="12" sm="6" md="6">
+                    <MudTextField Label="Address Line 1"
+                                  @bind-Value="_permanent.AddressLine1" />
+                </MudItem>
+
+                <MudItem xs="12" sm="6" md="6">
+                    <MudTextField Label="Address Line 2"
+                                  @bind-Value="_permanent.AddressLine2" />
+                </MudItem>
+
+                <MudItem xs="12" sm="6" md="4">
+                    <MudTextField T="int?" Label="Location Code"
+                                  @bind-Value="_permanent.LocationCode" />
+                </MudItem>
+
+                <MudItem xs="12">
+                    <MudTextField Label="Remarks"
+                                  @bind-Value="_permanent.Remarks"
+                                  Lines="2" />
+                </MudItem>
+            </MudGrid>
+        </MudTabPanel>
+    </MudTabs>
+
+    <MudStack Row Class="mt-4 gap-2">
+        <MudButton Color="Color.Default" Variant="Variant.Outlined" OnClick="Reset">Reset</MudButton>
+        <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="Save">Save</MudButton>
+    </MudStack>
+</MudPaper>
+
+@code {
+    [Parameter] public int ReferenceId { get; set; }
+    [Parameter] public string ReferenceType { get; set; } = "Person";
+
+    private PersonAddressInfoModel _present = new();
+    private PersonAddressInfoModel _permanent = new();
+    private bool _sameAsPermanent;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAddresses();
+    }
+
+    private async Task LoadAddresses()
+    {
+        try
+        {
+            var data = await Http.GetFromJsonAsync<List<PersonAddressInfoModel>>(
+                $"sme/api/PersonAddressInfo/GetAll");
+
+            if (data is not null)
+            {
+                _present = data.FirstOrDefault(a =>
+                    a.ReferenceId == ReferenceId &&
+                    a.ReferenceType == ReferenceType &&
+                    a.AddressType == "Present")
+                    ?? new PersonAddressInfoModel
+                    {
+                        ReferenceId = ReferenceId,
+                        ReferenceType = ReferenceType,
+                        AddressType = "Present"
+                    };
+
+                _permanent = data.FirstOrDefault(a =>
+                    a.ReferenceId == ReferenceId &&
+                    a.ReferenceType == ReferenceType &&
+                    a.AddressType == "Permanent")
+                    ?? new PersonAddressInfoModel
+                    {
+                        ReferenceId = ReferenceId,
+                        ReferenceType = ReferenceType,
+                        AddressType = "Permanent"
+                    };
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error loading address info: {ex.Message}", Severity.Error);
+        }
+    }
+
+    private void HandleSameAsPermanentChanged(bool value)
+    {
+        _sameAsPermanent = value;
+        if (_sameAsPermanent)
+        {
+            _permanent.AddressLine1 = _present.AddressLine1;
+            _permanent.AddressLine2 = _present.AddressLine2;
+            _permanent.LocationCode = _present.LocationCode;
+            _permanent.Remarks = _present.Remarks;
+        }
+    }
+
+    private async Task Save()
+    {
+        try
+        {
+            var responses = new List<HttpResponseMessage>
+            {
+                await Http.PostAsJsonAsync("sme/api/PersonAddressInfo/SaveUpdateAsyn", _present),
+                await Http.PostAsJsonAsync("sme/api/PersonAddressInfo/SaveUpdateAsyn", _permanent)
+            };
+
+            if (responses.All(r => r.IsSuccessStatusCode))
+                Snackbar.Add("Address information saved successfully!", Severity.Success);
+            else
+                Snackbar.Add("Failed to save one or more addresses.", Severity.Error);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error while saving: {ex.Message}", Severity.Error);
+        }
+    }
+
+    private void Reset()
+    {
+        _present = new PersonAddressInfoModel
+        {
+            ReferenceId = ReferenceId,
+            ReferenceType = ReferenceType,
+            AddressType = "Present"
+        };
+
+        _permanent = new PersonAddressInfoModel
+        {
+            ReferenceId = ReferenceId,
+            ReferenceType = ReferenceType,
+            AddressType = "Permanent"
+        };
+
+        _sameAsPermanent = false;
+    }
+}
