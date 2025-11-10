@@ -4,6 +4,7 @@ using SMEapps.Shared.Model;
 using System;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace SMEapps.Shared.Identity
@@ -12,7 +13,7 @@ namespace SMEapps.Shared.Identity
     {
         protected ResetPasswordModel resetModel = new();
         protected bool isLoading = false;
-
+       
         [Inject] protected NavigationManager Nav { get; set; } = default!;
         [Inject] protected IHttpClientFactory ClientFactory { get; set; } = default!;
         [Inject] protected ISnackbar Snackbar { get; set; } = default!;
@@ -21,10 +22,10 @@ namespace SMEapps.Shared.Identity
         {
             try
             {
-                var uri = Nav.ToAbsoluteUri(Nav.Uri);
-                var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
-                resetModel.Email = query["email"];
-                resetModel.ResetPasswordToken = query["token"];
+            var uri = Nav.ToAbsoluteUri(Nav.Uri);
+            var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
+            resetModel.Email = query["email"];
+            resetModel.ResetPasswordToken = query["token"];
 
                 if (string.IsNullOrWhiteSpace(resetModel.Email) || string.IsNullOrWhiteSpace(resetModel.ResetPasswordToken))
                 {
@@ -36,7 +37,7 @@ namespace SMEapps.Shared.Identity
             {
                 Snackbar.Add("Invalid link format.", Severity.Error);
                 Nav.NavigateTo("/identity/login");
-            }
+        }
         }
 
         protected async Task ResetPasswordHandler()
@@ -58,6 +59,7 @@ namespace SMEapps.Shared.Identity
             {
                 var client = ClientFactory.CreateClient("ApiClient");
 
+                
                 var payload = new
                 {
                     Email = resetModel.Email,
@@ -98,4 +100,4 @@ namespace SMEapps.Shared.Identity
             }
         }
     }
-}
+    }

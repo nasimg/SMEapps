@@ -24,8 +24,8 @@ namespace SMEapps
             builder.Configuration.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
 
             builder.Services.AddSingleton<IFormFactor, FormFactor>();
-
-            var apiBaseUrl = builder.Configuration["ApiBaseUrl"] ?? "https://localhost:7187/";
+            builder.Services.AddSingleton<ISStore, SStore>();
+            var apiBaseUrl = builder.Configuration["ApiBaseUrl"];
 
             builder.Services.AddHttpClient("ApiClient", client =>
             {
