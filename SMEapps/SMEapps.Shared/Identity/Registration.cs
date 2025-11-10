@@ -1,5 +1,4 @@
-﻿using Microsoft.FluentUI.AspNetCore.Components;
-using SMEapps.Shared.Model;
+﻿using SMEapps.Shared.Model;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
@@ -10,11 +9,11 @@ namespace SMEapps.Shared.Identity
     public partial class Registration
     {
         private RegisterModel Model = new();
-        private FluentToast? toast;
+
 
         [Inject] private IHttpClientFactory ClientFactory { get; set; } = default!;
         [Inject] private NavigationManager NavManager { get; set; } = default!;
-        [Inject] private IToastService Toast { get; set; } = default!;
+
 
         private HttpClient ApiClient => ClientFactory.CreateClient("ApiClient");
 
@@ -25,7 +24,7 @@ namespace SMEapps.Shared.Identity
             {
                 if (Model.Password != Model.ConfirmPassword)
                 {
-                    Toast.ShowError("Passwords do not match!");
+              
                     return;
                 }
 
@@ -43,22 +42,18 @@ namespace SMEapps.Shared.Identity
 
                 if (response.IsSuccessStatusCode)
                 {
-                    Toast.ShowSuccess(
-                        title: "Registration successful!",
-                        timeout: 2000
-                    );
+                   
 
                     NavManager.NavigateTo("/identity/login");
                 }
                 else
                 {
-                    var error = await response.Content.ReadAsStringAsync();
-                    Toast.ShowError($"Registration failed: {error}");
+                  
                 }
             }
             catch (Exception ex)
             {
-                Toast.ShowError($"Error: {ex.Message}");
+           
             }
         }
     }

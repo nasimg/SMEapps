@@ -6,38 +6,42 @@ namespace SMEapps.Web.Client.Services.SStore
 {
     public class SStore : ISStore
     {
-        //private readonly Dictionary<string, object> _store = new();
-        //public Task<bool> SaveAsync<T>(string key, T value)
-        //{
-        //    _store[key] = value ?? throw new ArgumentNullException(nameof(value), "Value cannot be null.");
-        //    return Task.FromResult(true);
-        //}
-        //public Task<T?> GetAsync<T>(string key)
-        //{
-        //    if (_store.TryGetValue(key, out var value) && value is T typedValue)
-        //    {
-        //        return Task.FromResult<T?>(typedValue);
-        //    }
-        //    return Task.FromResult<T?>(default);
-        //}
-        //public Task<bool> RemoveAsync(string key)
-        //{
-        //    return Task.FromResult(_store.Remove(key));
-        //}
-        //public Task ClearAsync()
-        //{
-        //    _store.Clear();
-        //    return Task.CompletedTask;
-        //}
-        //public Task<bool> ContainsKeyAsync(string key)
-        //{
-        //    return Task.FromResult(_store.ContainsKey(key));
-        //}
         private readonly IJSRuntime _js;
 
         public SStore(IJSRuntime js)
         {
             _js = js;
+        }
+
+        private static bool IsUnsupportedJsRuntime(Exception? ex)
+        {
+            while (ex != null)
+            {
+                var fullName = ex.GetType().FullName ?? string.Empty;
+                var name = ex.GetType().Name ?? string.Empty;
+
+                if (fullName == "Microsoft.AspNetCore.Components.Endpoints.UnsupportedJavaScriptRuntime"
+                    || name.Contains("UnsupportedJavaScriptRuntime")
+                    || (ex.Message != null && ex.Message.Contains("JavaScript interop calls cannot be issued during server-side static rendering", StringComparison.OrdinalIgnoreCase)))
+                {
+                    return true;
+                }
+
+                ex = ex.InnerException;
+            }
+
+            return false;
+        }
+
+        private async Task SafeInvokeAsync(Func<Task> action)
+        {
+            try
+            {
+                await action();
+            }
+            catch (JSDisconnectedException) { /* Ignore: app is reloading */ }
+            catch (ObjectDisposedException) { /* Ignore: JS runtime disposed */ }
+            catch (Exception ex) when (IsUnsupportedJsRuntime(ex)) { /* Ignore: running in environment without JS runtime (prerendering) */ }
         }
 
         public async Task<bool> SaveAsync<T>(string key, T value)
@@ -46,33 +50,47 @@ namespace SMEapps.Web.Client.Services.SStore
                 throw new ArgumentNullException(nameof(value), "Value cannot be null.");
 
             var json = JsonSerializer.Serialize(value);
-            await _js.InvokeVoidAsync("localStorage.setItem", key, json);
+            await SafeInvokeAsync(() => _js.InvokeVoidAsync("localStorage.setItem", key, json).AsTask());
             return true;
         }
 
         public async Task<T?> GetAsync<T>(string key)
         {
-            var json = await _js.InvokeAsync<string>("localStorage.getItem", key);
-            if (json == null) return default;
+            try
+            {
+                var json = await _js.InvokeAsync<string>("localStorage.getItem", key);
+                return json == null ? default : JsonSerializer.Deserialize<T>(json);
+            }
+            catch (JSDisconnectedException) { }
+            catch (ObjectDisposedException) { }
+            catch (Exception ex) when (IsUnsupportedJsRuntime(ex)) { }
 
-            return JsonSerializer.Deserialize<T>(json);
+            return default;
         }
 
         public async Task<bool> RemoveAsync(string key)
         {
-            await _js.InvokeVoidAsync("localStorage.removeItem", key);
+            await SafeInvokeAsync(() => _js.InvokeVoidAsync("localStorage.removeItem", key).AsTask());
             return true;
         }
 
         public async Task ClearAsync()
         {
-            await _js.InvokeVoidAsync("localStorage.clear");
+            await SafeInvokeAsync(() => _js.InvokeVoidAsync("localStorage.clear").AsTask());
         }
 
         public async Task<bool> ContainsKeyAsync(string key)
         {
-            var value = await _js.InvokeAsync<string>("localStorage.getItem", key);
-            return value != null;
+            try
+            {
+                var value = await _js.InvokeAsync<string>("localStorage.getItem", key);
+                return value != null;
+            }
+            catch (JSDisconnectedException) { }
+            catch (ObjectDisposedException) { }
+            catch (Exception ex) when (IsUnsupportedJsRuntime(ex)) { }
+
+            return false;
         }
     }
 }

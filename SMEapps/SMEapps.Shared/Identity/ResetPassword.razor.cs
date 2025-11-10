@@ -26,11 +26,11 @@ namespace SMEapps.Shared.Identity
 
         private async Task ResetPasswordHandler()
         {
-            if (resetModel.NewPassword != resetModel.ConfirmPassword)
-            {
-                ToastService.ShowError("Passwords do not match!");
-                return;
-            }
+            //if (resetModel.NewPassword != resetModel.ConfirmPassword)
+            //{
+            //    ToastService.ShowError("Passwords do not match!");
+            //    return;
+            //}
 
             await SubmitResetPassword();
         }
@@ -57,24 +57,24 @@ namespace SMEapps.Shared.Identity
                     var result = await response.Content.ReadFromJsonAsync<Responses>();
                     if (result?.IsSuccess == true)
                     {
-                        await Task.Delay(1000);
-                        ToastService.ShowSuccess("Password reset successfully!");
-                        Nav.NavigateTo("/identity/login");
+                        //await Task.Delay(1000);
+                        //ToastService.ShowSuccess("Password reset successfully!");
+                        //Nav.NavigateTo("/identity/login");
                     }
                     else
                     {
-                        ToastService.ShowError(result?.Message ?? "Failed to reset password.");
+                        //ToastService.ShowError(result?.Message ?? "Failed to reset password.");
                     }
                 }
                 else
                 {
-                    var error = await response.Content.ReadAsStringAsync();
-                    ToastService.ShowError($"Server error: {response.StatusCode} - {error}");
+                    //var error = await response.Content.ReadAsStringAsync();
+                    //ToastService.ShowError($"Server error: {response.StatusCode} - {error}");
                 }
             }
             catch (Exception ex)
             {
-                ToastService.ShowError($"Error: {ex.Message}");
+                //ToastService.ShowError($"Error: {ex.Message}");
             }
             finally
             {

@@ -21,8 +21,20 @@ public class WebAuthStateProvider : AuthenticationStateProvider
 
     public override async Task<AuthenticationState> GetAuthenticationStateAsync()
     {
-        var token = await _store.GetAsync<string>("token");
-        var refreshToken = await _store.GetAsync<string>("refreshToken");
+        string? token = null;
+        string? refreshToken = null;
+
+        try
+        {
+            // Guard against JS interop exceptions during server static rendering by catching them here.
+            token = await _store.GetAsync<string>("token");
+            refreshToken = await _store.GetAsync<string>("refreshToken");
+        }
+        catch
+        {
+            // If localStorage isn't available (prerendering / no JS runtime), treat as anonymous.
+            return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
+        }
 
         if (string.IsNullOrEmpty(token))
             return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
@@ -40,7 +52,7 @@ public class WebAuthStateProvider : AuthenticationStateProvider
                     await _store.SaveAsync("token", result.Token);
                     await _store.SaveAsync("refreshToken", result.RefreshToken);
                     token = result.Token;
-                    
+
                     // Clear menu cache when token is refreshed to ensure fresh user data
                     //_dataCacheService?.ClearMenuItems();
                 }

@@ -30,24 +30,24 @@ namespace SMEapps.Shared.Identity
 
                     if (result != null && result.IsSuccess)
                     {
-                        ToastService.ShowSuccess("Token generated successfully!");
+                        //ToastService.ShowSuccess("Token generated successfully!");
 
                         await Task.Delay(1000);
                         Nav.NavigateTo($"/identity/reset-password?email={Uri.EscapeDataString(result.Email ?? emailModel.Email)}&token={Uri.EscapeDataString(result.Token ?? "")}");
                     }
                     else
                     {
-                        ToastService.ShowError(result?.Message ?? "Something went wrong.");
+                        //ToastService.ShowError(result?.Message ?? "Something went wrong.");
                     }
                 }
                 else
                 {
-                    ToastService.ShowError("Email not found.");
+                    //ToastService.ShowError("Email not found.");
                 }
             }
             catch (Exception ex)
             {
-                ToastService.ShowError($"Error: {ex.Message}");
+                //ToastService.ShowError($"Error: {ex.Message}");
             }
             finally
             {

@@ -1,7 +1,9 @@
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.FluentUI.AspNetCore.Components;
+using MudBlazor.Services;
 using SMEapps.Services;
 using SMEapps.Shared.Services;
+
 
 namespace SMEapps
 {
@@ -19,16 +21,21 @@ namespace SMEapps
 
             // Add device-specific services used by the SMEapps.Shared project
             builder.Services.AddSingleton<IFormFactor, FormFactor>();
+            builder.Services.AddSingleton<ISStore, SStore>();
             var apiBaseUrl = builder.Configuration["ApiBaseUrl"];
 
             builder.Services.AddHttpClient("ApiClient", client =>
             {
                 client.BaseAddress = new Uri(apiBaseUrl);
-            }).AddHttpMessageHandler<AuthHeaderHandler>();
-            builder.Services.AddTransient<AuthHeaderHandler>();
+            }).AddHttpMessageHandler<AuthHeader>();
+            builder.Services.AddTransient<AuthHeader>();
 
+            // Register DashboardService
+            builder.Services.AddScoped<DashboardService>();
+            
             builder.Services.AddMauiBlazorWebView();
-            builder.Services.AddFluentUIComponents();
+            builder.Services.AddMudServices();
+
 
 #if DEBUG
             builder.Services.AddBlazorWebViewDeveloperTools();
