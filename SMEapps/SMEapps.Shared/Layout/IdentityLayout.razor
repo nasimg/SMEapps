@@ -3,6 +3,7 @@
 <MudThemeProvider @bind-IsDarkMode="@_isDarkMode" Theme="_currentTheme" />
 
 <MudLayout>
+    <MudSnackbarProvider />
     <MudMainContent>
         <div class="d-flex align-center justify-center" style="min-height: 90vh">
             @Body

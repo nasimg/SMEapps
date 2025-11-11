@@ -44,6 +44,9 @@
         UpdateTheme();
     }
 
+
+    private bool _redirected;
+
     private void DrawerToggle() => _drawerOpen = !_drawerOpen;
 
     private async Task ThemeChanged(bool dark)
@@ -111,6 +114,7 @@
 
         LayoutProperties = new LayoutProperties { DrawerWidthLeft = "260px" }
     };
+
 
 
  

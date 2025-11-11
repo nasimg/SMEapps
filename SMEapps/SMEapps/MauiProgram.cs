@@ -1,3 +1,5 @@
+using Anudan.Shared.Services;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -23,14 +25,21 @@ namespace SMEapps
             // Load appsettings.json
             builder.Configuration.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
 
-            builder.Services.AddSingleton<IFormFactor, FormFactor>();
-            builder.Services.AddSingleton<ISStore, SStore>();
+
             var apiBaseUrl = builder.Configuration["ApiBaseUrl"];
 
             builder.Services.AddHttpClient("ApiClient", client =>
             {
-                client.BaseAddress = new Uri(apiBaseUrl);
+                client.BaseAddress = new Uri(apiBaseUrl ?? "http://192.168.1.38:9095/");
             }).AddHttpMessageHandler<AuthHeader>();
+            builder.Services.AddTransient<AuthHeader>();
+
+            builder.Services.AddScoped<MauiAuthStateProvider>();
+            builder.Services.AddScoped<AuthenticationStateProvider, MauiAuthStateProvider>();
+            builder.Services.AddAuthorizationCore();
+            builder.Services.AddSingleton<ISecureStorage>(SecureStorage.Default);
+            builder.Services.AddSingleton<IFormFactor, FormFactor>();
+            builder.Services.AddSingleton<ISStore, SStore>();
 
             builder.Services.AddTransient<AuthHeader>();
             builder.Services.AddScoped<DashboardService>();
