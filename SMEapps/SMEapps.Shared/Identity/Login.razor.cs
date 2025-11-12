@@ -10,7 +10,6 @@ namespace SMEapps.Shared.Identity
     public partial class Login : ComponentBase
     {
         private LoginModel loginModel = new();
-        private string? errorMessage;
         private bool isLoading = false;
 
         [Inject] public IHttpClientFactory HttpClientFactory { get; set; } = default!;
@@ -26,16 +25,12 @@ namespace SMEapps.Shared.Identity
         private async Task HandleValidSubmit(EditContext editContext)
         {
             isLoading = true;
-            errorMessage = null;
 
           
 
             try
             {
-                // Call a simple login API that just checks credentials
                 _processing = true;
-                await Task.Delay(2000);
-                _processing = false;
                 var response = await ApiClient.PostAsJsonAsync("Identity/GetToken", loginModel);
 
                 if (response.IsSuccessStatusCode)
@@ -86,10 +81,14 @@ namespace SMEapps.Shared.Identity
             }
             catch (Exception ex)
             {
-                errorMessage = $"Error: {ex.Message}";
+                Snackbar.Add($"Login Failed! {ex}", Severity.Error, c =>
+                {
+                    c.SnackbarVariant = Variant.Filled;
+                    c.VisibleStateDuration = 3000;
+                });
             }
 
-            isLoading = false;
+            _processing = false;
         }
     }
 }
