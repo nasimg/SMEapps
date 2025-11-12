@@ -7,32 +7,38 @@ using SMEapps.Web.Client.Services;
 using SMEapps.Web.Client.Services.SStore;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
-//builder.Services.AddFluentUIComponents();
+
+// ?? UI Framework
 builder.Services.AddMudServices();
-// Add device-specific services used by the SMEapps.Shared project
+
+// ?? Device-specific services
 builder.Services.AddSingleton<IFormFactor, FormFactor>();
 builder.Services.AddSingleton<ISStore, SStore>();
 
-// Register DashboardService
+// ?? Dashboard and common code services
 builder.Services.AddScoped<DashboardService>();
 
-// Register AuthHeader handler so it can be added to HttpClient pipeline
+// ? Register IHttpClientFactory support (needed for your CommonCodeService)
+builder.Services.AddHttpClient();
+
+// ? Register CommonCodeService so it can be injected in components
+builder.Services.AddScoped<CommonCodeService>();
+
+// ?? Auth handler and HTTP clients
 builder.Services.AddTransient<AuthHeader>();
 
-// Add HttpClient for API calls — main client has the AuthHeader
 builder.Services.AddHttpClient("ApiClient", client =>
 {
     client.BaseAddress = new Uri("https://localhost:7187/");
 })
 .AddHttpMessageHandler<AuthHeader>();
 
-// Add a second client used for token refresh that does NOT use the AuthHeader (avoids recursion)
 builder.Services.AddHttpClient("ApiClient.Refresh", client =>
 {
     client.BaseAddress = new Uri("https://localhost:7187/");
 });
 
-// Register Authentication Services
+// ?? Authentication & authorization
 builder.Services.AddScoped<WebAuthStateProvider>();
 builder.Services.AddScoped<AuthenticationStateProvider>(sp => sp.GetRequiredService<WebAuthStateProvider>());
 builder.Services.AddAuthorizationCore();

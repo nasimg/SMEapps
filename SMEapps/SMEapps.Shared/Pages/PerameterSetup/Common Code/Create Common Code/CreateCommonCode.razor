@@ -1,0 +1,93 @@
+﻿@page "/commoncode/add"
+@using SMEapps.Shared.Services
+@inject CommonCodeService _service
+@inject NavigationManager NavManager
+@inject ISnackbar Snackbar
+
+<MudContainer MaxWidth="MaxWidth.False" Class="pa-4">
+    <MudPaper Class="pa-6">
+        <MudText Typo="Typo.h5" Class="mb-2">➕ Add Common Code</MudText>
+        <MudText Typo="Typo.caption" Class="mb-4">Fill the fields below to create a new code.</MudText>
+
+        <MudForm @ref="_form" @onsubmit="HandleSubmit">
+            <MudGrid Spacing="2">
+                <MudItem xs="12" sm="6" md="4">
+                    <MudTextField @bind-Value="_model.CodeType" 
+                                  Label="Code Type" 
+                                  Required="true" 
+                                  RequiredError="Code Type is required!" />
+                </MudItem>
+                <MudItem xs="12" sm="6" md="4">
+                    <MudTextField @bind-Value="_model.CodeValue" 
+                                  Label="Code Value" 
+                                  Required="true" 
+                                  RequiredError="Code Value is required!" />
+                </MudItem>
+                <MudItem xs="12" sm="6" md="4">
+                    <MudTextField @bind-Value="_model.ParentId" 
+                                  Label="Parent Id" 
+                                  HelperText="Optional" />
+                </MudItem>
+                <MudItem xs="12" sm="6" md="4" Class="d-flex align-center">
+                    @* <MudSwitch @bind-Checked="_model.Status" 
+                               Label="Active" 
+                               Color="Color.Primary" /> *@
+                </MudItem>
+            </MudGrid>
+
+            <MudStack Row Spacing="2" Class="mt-6">
+                <MudButton Variant="Variant.Filled" 
+                           Color="Color.Primary" 
+                           ButtonType="ButtonType.Submit"
+                           Disabled="_isSaving">
+                    @_saveText
+                </MudButton>
+                <MudButton Variant="Variant.Outlined" 
+                           Color="Color.Secondary" 
+                           OnClick="BackToList">
+                    Cancel
+                </MudButton>
+            </MudStack>
+        </MudForm>
+    </MudPaper>
+</MudContainer>
+
+@code {
+    private MudForm _form = default!;
+    private CommonCode _model = new() { Status = true };
+    private bool _isSaving = false;
+    private string _saveText => _isSaving ? "Saving..." : "Save";
+
+    private async Task HandleSubmit()
+    {
+        if (_isSaving) return;
+
+        await _form.Validate();
+        if (!_form.IsValid) return;
+
+        _isSaving = true;
+        try
+        {
+            var result = await _service.SaveAsync(_model);
+            if (result.StatusCode == 200)
+            {
+                Snackbar.Add("Code saved successfully!", Severity.Success);
+                NavManager.NavigateTo("/commoncode");
+            }
+            else
+            {
+                Snackbar.Add(result.Message ?? "Save failed.", Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            _isSaving = false;
+        }
+    }
+
+    private void BackToList() => NavManager.NavigateTo("/commoncode");
+}

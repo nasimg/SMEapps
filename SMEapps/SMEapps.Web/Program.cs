@@ -16,7 +16,7 @@ builder.Services.AddRazorComponents()
     .AddInteractiveWebAssemblyComponents();
 
 builder.Services.AddMudServices();
-
+builder.Services.AddScoped<CommonCodeService>();
 builder.Services.AddSingleton<IFormFactor, FormFactor>();
 builder.Services.AddScoped<ISStore, SStore>();
 
