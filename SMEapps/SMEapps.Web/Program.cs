@@ -77,7 +77,7 @@ builder.Services.AddAuthentication(options =>
 });
 
 // Dependency injection registrations
-
+builder.Services.AddMudServices();
 //builder.Services.AddTransient<AuthHeaderHandler>();
 // Register Authentication Services
 builder.Services.AddScoped<WebAuthStateProvider>();

@@ -41,6 +41,12 @@ public class CommonCodeService
             Message = await response.Content.ReadAsStringAsync()
         };
     }
+    public async Task<ResultViewModel> DeleteAsync(int id)
+    {
+        var response = await _httpClient.DeleteAsync($"/sme/api/CommonCode/DeleteAsyn/{id}");
+        return await response.Content.ReadFromJsonAsync<ResultViewModel>()
+               ?? new ResultViewModel { StatusCode = (int)response.StatusCode };
+    }
 }
 
 public class ResultViewModel
@@ -54,7 +60,7 @@ public class CommonCode
     public int CommonCodeId { get; set; }
     public string CodeType { get; set; } = string.Empty;
     public string CodeValue { get; set; } = string.Empty;
-    public int? ParentId { get; set; }
+    //public int? ParentId { get; set; }
 
     public bool Status { get; set; } = true;  // ← NOT nullable
 }
