@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,13 +10,16 @@ namespace SMEapps.Shared.Model
     public class PersonalInfo
     {
         public string? Title { get; set; }
+        [Required(ErrorMessage ="First Name is Required")]
         public string? FirstName { get; set; }
         public string? LastName { get; set; }
         public string? MiddleName { get; set; }
         public string? ShortName { get; set; }
         public string? Name { get; set; }
         public string? Gender { get; set; }
-        public DateTime? DateOfBirth { get; set; }
+
+        [Required]
+        public DateOnly? DateOfBirth { get; set; }
         public string? DistrictOfBirth { get; set; }
         public string? Age { get; set; }
         public string? Nationality { get; set; }

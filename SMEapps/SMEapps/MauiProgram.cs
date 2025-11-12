@@ -43,6 +43,7 @@ namespace SMEapps
 
             builder.Services.AddTransient<AuthHeader>();
             builder.Services.AddScoped<DashboardService>();
+            builder.Services.AddScoped<CustomerService>();
             builder.Services.AddMauiBlazorWebView();
             builder.Services.AddMudServices();
 
