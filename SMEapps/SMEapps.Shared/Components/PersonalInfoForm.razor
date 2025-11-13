@@ -1,59 +1,102 @@
 ﻿@using MudBlazor;
+@using SMEapps.Shared.Enums
 @using SMEapps.Shared.Model;
 @using System.Globalization
 @using SMEapps.Shared.Services
+@using System.ComponentModel.DataAnnotations
+@using System.Reflection
 @inject SMEapps.Shared.Services.CustomerService CustomerService
 
 <MudContainer MaxWidth="MaxWidth.False" Class="pa-4">
     <MudPaper Class="pa-6">
 
         <MudForm @ref="_form">
-        <MudText Typo="Typo.h6" Class="mt-4 mb-2">Personal Information</MudText>
-        <MudDivider Class="mb-3" />
+            <MudText Typo="Typo.h6" Class="mt-4 mb-2">Personal Information</MudText>
+            <MudDivider Class="mb-3" />
 
-        <MudGrid Spacing="2">
-            <MudItem xs="12" sm="6" md="3"><MudTextField Label="Title" @bind-Value="Model.Title" /></MudItem>
-            <MudItem xs="12" sm="6" md="3"><MudTextField Label="First Name" @bind-Value="Model.FirstName" Required="true" /></MudItem>
-            <MudItem xs="12" sm="6" md="3"><MudTextField Label="Middle Name" @bind-Value="Model.MiddleName" /></MudItem>
-            <MudItem xs="12" sm="6" md="3"><MudTextField Label="Last Name" @bind-Value="Model.LastName" Required="true" /></MudItem>
-            <MudItem xs="12" sm="6" md="3">
-                <MudSelect Label="Gender" @bind-Value="Model.Gender">
-                    @* <MudSelectItem Value="M">Male</MudSelectItem>
-                    <MudSelectItem Value="F">Female</MudSelectItem> *@
-                </MudSelect>
-            </MudItem>
-            @* <MudItem xs="12" sm="6" md="3">
-                <MudDatePicker Label="Date of Birth"
-                               @bind-Date="Model.DateOfBirth"
-                               Required="true" />
-            </MudItem> *@
-            <MudItem xs="12" sm="6" md="3"><MudTextField Label="District of Birth" @bind-Value="Model.DistrictOfBirth" /></MudItem>
-            <MudItem xs="12" sm="6" md="3"><MudTextField Label="Age" @bind-Value="Model.Age" /></MudItem>
-            <MudItem xs="12" sm="6" md="3"><MudTextField Label="Nationality" @bind-Value="Model.Nationality" /></MudItem>
-            <MudItem xs="12" sm="6" md="3"><MudTextField Label="Religion" @bind-Value="Model.Religion" /></MudItem>
-            <MudItem xs="12" sm="6" md="3"><MudTextField Label="ID Type" @bind-Value="Model.IdType" /></MudItem>
-            <MudItem xs="12" sm="6" md="3"><MudTextField Label="National ID No" @bind-Value="Model.NationalIdNo" /></MudItem>
-            <MudItem xs="12" sm="6" md="3"><MudTextField Label="Smart NID" @bind-Value="Model.SmartNid" /></MudItem>
-            <MudItem xs="12" sm="6" md="3"><MudTextField Label="Birth Certificate No" @bind-Value="Model.BirthCertificateNo" /></MudItem>
-            <MudItem xs="12" sm="6" md="3"><MudTextField Label="TIN No" @bind-Value="Model.TinNo" /></MudItem>
-            <MudItem xs="12" sm="6" md="3"><MudTextField Label="Profession" @bind-Value="Model.Profession" /></MudItem>
-            <MudItem xs="12" sm="6" md="3"><MudTextField Label="Designation" @bind-Value="Model.Designation" /></MudItem>
-            <MudItem xs="12" sm="6" md="3"><MudTextField Label="Business Name" @bind-Value="Model.BusinessName" /></MudItem>
-            <MudItem xs="12" sm="6" md="3"><MudTextField Label="Father Name" @bind-Value="Model.FatherName" /></MudItem>
-            <MudItem xs="12" sm="6" md="3"><MudTextField Label="Mother Name" @bind-Value="Model.MotherName" /></MudItem>
-            <MudItem xs="12" sm="6" md="3"><MudTextField Label="Marital Status" @bind-Value="Model.MaritalStatus" /></MudItem>
-            <MudItem xs="12" sm="6" md="3"><MudTextField Label="Spouse Name" @bind-Value="Model.SpouseName" /></MudItem>
-         
-        </MudGrid>
+            <MudGrid Class="mb-2" >
+                <MudItem xs="12" sm="6" md="3"><MudTextField Label="Title" @bind-Value="Model.Title" /></MudItem>
+                <MudItem xs="12" sm="6" md="3"><MudTextField Label="First Name" @bind-Value="Model.FirstName" Required="true" /></MudItem>
+                <MudItem xs="12" sm="6" md="3"><MudTextField Label="Middle Name" @bind-Value="Model.MiddleName" /></MudItem>
+                <MudItem xs="12" sm="6" md="3"><MudTextField Label="Last Name" @bind-Value="Model.LastName" Required="true" /></MudItem>
+            </MudGrid>
+            <MudGrid Class="mb-2">
+                <MudItem xs="12" sm="6" md="3">
+                    <MudSelect T="string"
+                               @bind-Value="Model.Gender"
+                               Label="Gender"
+                               Dense="true"
+                               Clearable="true"
+                               Required="true">
+                        @foreach (var gender in Enum.GetValues(typeof(GenderEnum)).Cast<GenderEnum>())
+                        {
+                            var displayName = gender.GetType()
+                            .GetMember(gender.ToString())
+                            .First()
+                            .GetCustomAttribute<DisplayAttribute>()?
+                            .Name ?? gender.ToString();
 
-            @_processing  <MudButton Variant="Variant.Text" OnClick="Reset">Reset</MudButton>
-            <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="Save" Disabled="@_processing">Save</MudButton>
+                            <MudSelectItem Value="@gender.ToString()">@displayName</MudSelectItem>
+                        }
+                    </MudSelect>
 
-        <MudDivider Class="mb-3" />
+
+
+                </MudItem>
+                <MudItem xs="12" sm="6" md="3">
+                    <MudDatePicker Label="Date of Birth" Editable="true" @bind-Date="Model.DateOfBirthDateTime" Mask="@(new DateMask("dd.MM.yyyy"))" DateFormat="dd.MM.yyyy" Variant="Variant.Text" />
+                </MudItem>
+                <MudItem xs="12" sm="6" md="3"><MudTextField Label="District of Birth" @bind-Value="Model.DistrictOfBirth" /></MudItem>
+                <MudItem xs="12" sm="6" md="3"><MudTextField Label="Age" @bind-Value="Model.Age" /></MudItem>
+            </MudGrid>
+            <MudGrid Class="mb-2">
+                <MudItem xs="12" sm="6" md="3"><MudTextField Label="Nationality" @bind-Value="Model.Nationality" /></MudItem>
+                <MudItem xs="12" sm="6" md="3"><MudTextField Label="Religion" @bind-Value="Model.Religion" /></MudItem>
+                <MudItem xs="12" sm="6" md="3"><MudTextField Label="ID Type" @bind-Value="Model.IdType" /></MudItem>
+                <MudItem xs="12" sm="6" md="3"><MudTextField Label="National ID No" @bind-Value="Model.NationalIdNo" /></MudItem>
+            </MudGrid>
+            <MudGrid Class="mb-2">
+                <MudItem xs="12" sm="6" md="3"><MudTextField Label="Smart NID" @bind-Value="Model.SmartNid" /></MudItem>
+                <MudItem xs="12" sm="6" md="3"><MudTextField Label="Birth Certificate No" @bind-Value="Model.BirthCertificateNo" /></MudItem>
+                <MudItem xs="12" sm="6" md="3"><MudTextField Label="Profession" @bind-Value="Model.Profession" /></MudItem>
+                <MudItem xs="12" sm="6" md="3"><MudTextField Label="Designation" @bind-Value="Model.Designation" /></MudItem>
+            </MudGrid>
+            <MudGrid Class="mb-2">
+                <MudItem xs="12" sm="6" md="3"><MudTextField Label="Business Name" @bind-Value="Model.BusinessName" /></MudItem>
+                <MudItem xs="12" sm="6" md="3"><MudTextField Label="Father Name" @bind-Value="Model.FatherName" /></MudItem>
+                <MudItem xs="12" sm="6" md="3"><MudTextField Label="Mother Name" @bind-Value="Model.MotherName" /></MudItem>
+                <MudItem xs="12" sm="6" md="3">
+                    <MudSelect T="string"
+                               @bind-Value="Model.MaritalStatus"
+                               Label="Marital Status"
+                               Dense="true"
+                               Clearable="true">
+                        @foreach (var maritalStatus in Enum.GetValues(typeof(MaritalStatusEnum)).Cast<MaritalStatusEnum>())
+                        {
+                            var displayName = maritalStatus.GetType()
+                            .GetMember(maritalStatus.ToString())
+                            .First()
+                            .GetCustomAttribute<DisplayAttribute>()?
+                            .Name ?? maritalStatus.ToString();
+
+                            <MudSelectItem Value="@maritalStatus.ToString()">@displayName</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
+            </MudGrid>
+            <MudGrid Class="mb-2">
+                <MudItem xs="12" sm="6" md="3"><MudTextField Label="Spouse Name" @bind-Value="Model.SpouseName" /></MudItem>
+
+            </MudGrid>
+
+            <MudCardActions Class="justify-end mb-3">
+                <MudButton Color="Color.Error" Variant="Variant.Filled" OnClick="Reset">Reset</MudButton>
+                <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="Save" Disabled="@_processing" Class="ms-2">Save</MudButton>
+            </MudCardActions>
         </MudForm>
 
     </MudPaper>
-          
+
 </MudContainer>
 
 @code {
@@ -81,8 +124,6 @@
             if (Person is not null)
             {
                 Snackbar.Add("Customer saved successfully.", MudBlazor.Severity.Success);
-                // Optionally reset model or navigate
-                // Model = new CustomerInfoModel();
             }
             else
             {
@@ -96,7 +137,7 @@
         finally
         {
             _processing = false;
-            Model = new ();
+            Model = new();
             StateHasChanged();
         }
     }
