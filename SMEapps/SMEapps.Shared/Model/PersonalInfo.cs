@@ -24,8 +24,8 @@ namespace SMEapps.Shared.Model
         public DateOnly? DateOfBirth { get; set; }
         public string? DistrictOfBirth { get; set; }
         public string? Age { get; set; }
-        public string? Nationality { get; set; }
-        public string? Religion { get; set; }
+        public int? NationalityId { get; set; }
+        public int? ReligionId { get; set; }
         public string? MaritalStatus { get; set; }
         public string? FatherTitle { get; set; }
         public string? FatherName { get; set; }
@@ -42,6 +42,8 @@ namespace SMEapps.Shared.Model
         public string? TelephoneResident { get; set; }
         public string? Profession { get; set; }
         public string? Designation { get; set; }
+
+        [Required(ErrorMessage = "Business Name is Required")]
         public string? BusinessName { get; set; }
         public string? OfficeAddress { get; set; }
 

@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Net.Http;
-using System.Text;
-using System.Threading.Tasks;
+﻿using SMEapps.Shared.Model;
+using System.Net.Http.Json;
 
 namespace SMEapps.Shared.Services;
 
@@ -19,17 +14,19 @@ public class CommonCodeService
 
     private HttpClient ApiClient => _httpClientFactory.CreateClient("ApiClient");
 
-    //public async Task<List<Model.CommonCodeModel>> GetCommonCode()
-    //{
-    //    try
-    //    {
+    public async Task<List<CommonCodeModel>> GetCommonCode()
+    {
+        var response = await ApiClient.GetAsync("sme/api/CommonCode/GetAll");
 
-    //    }catch(Exception ex)
-    //    {
-    //        var response = await ApiClient.GetAsync("")
-    //    }
+        if (!response.IsSuccessStatusCode)
+        {
+            return new List<CommonCodeModel>();
+        }
 
-    //}
+        var result = await response.Content.ReadFromJsonAsync<List<CommonCodeModel>>();
+        return result;
+
+    }
 
 
 }

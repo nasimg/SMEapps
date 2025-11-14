@@ -88,6 +88,7 @@ builder.Services.AddCascadingAuthenticationState();
 // Register DashboardService for role-based navigation
 builder.Services.AddScoped<DashboardService>();
 builder.Services.AddScoped<CustomerService>();
+builder.Services.AddScoped<CommonCodeService>();
 
 var app = builder.Build();
 app.MapStaticAssets();
