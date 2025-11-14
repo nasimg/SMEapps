@@ -1,5 +1,9 @@
 ﻿@page "/customer"
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
 @inject MudBlazor.ISnackbar Snackbar
+@inject SMEapps.Shared.Services.ISStore SStore
+@inject NavigationManager NavigationManager
 <MudContainer MaxWidth="MaxWidth.False" Class="pa-4">
     <MudPaper Class="pa-6">
 
@@ -9,6 +13,21 @@
 </MudContainer>
 
 @code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+            return;
 
+        var token = await SStore.GetAsync<string>("token");
+        if (string.IsNullOrEmpty(token))
+        {
+            var relative = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
+            var returnUrl = "/" + (string.IsNullOrEmpty(relative) ? "" : relative);
+            NavigationManager.NavigateTo($"/identity/login?returnUrl={Uri.EscapeDataString(returnUrl)}", true);
+            return;
+        }
+
+        await InvokeAsync(StateHasChanged);
+    }
 
 }
