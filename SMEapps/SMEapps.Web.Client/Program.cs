@@ -15,6 +15,8 @@ builder.Services.AddSingleton<ISStore, SStore>();
 
 // Register DashboardService
 builder.Services.AddScoped<DashboardService>();
+builder.Services.AddScoped<CustomerService>();
+builder.Services.AddScoped<CommonCodeService>();
 
 // Register AuthHeader handler so it can be added to HttpClient pipeline
 builder.Services.AddTransient<AuthHeader>();

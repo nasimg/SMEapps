@@ -2,16 +2,23 @@
 @layout IdentityLayout
 @using System.ComponentModel.DataAnnotations
 
-<EditForm Model="@loginModel" OnValidSubmit="HandleValidSubmit" style="min-width: 450px">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
+<MudGrid Justify="Justify.Center">
+    <MudItem xs="10" sm="8" md="6" lg="5">
 
+ <MudForm @ref="form">
     <MudCard>
-        <MudText Typo="Typo.h4" Align="Align.Center" Class="pt-2 pb-2">
-            SME - Login
-        </MudText>
 
         <MudCardContent>
+            <div class="d-flex justify-center">
+                <MudIcon Icon="@Icons.Material.Filled.LockPerson"
+                         Title="Welcome to SME"
+                         Style="font-size: 4rem;"
+                         Color="Color.Secondary"
+                         DropShadow="true" />
+            </div>
+            <MudText Typo="Typo.h4" Align="Align.Center" Class="pt-2 pb-2">
+                SME - Login
+            </MudText>
             <MudTextField Label="Email"
                           Class="mt-3"
                           @bind-Value="loginModel.Email"
@@ -24,22 +31,41 @@
                           For="@(() => loginModel.Password)"
                           InputType="InputType.Password"
                           Required="true" />
+
+                    <MudCardActions Class="no-padding-actions">
+                        <MudButton Disabled="@_processing" onclick="HandleValidSubmit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto mt-3 ">
+                            @if (_processing)
+                            {
+                                <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                                <MudText Class="ms-2">Processing</MudText>
+                            }
+                            else
+                            {
+                                <MudText>Login</MudText>
+                            }
+                        </MudButton>
+                    </MudCardActions>
+                    <div class="my-1">
+                        <MudLink Href="/identity/forgot" Underline="Underline.Always">Forget Password</MudLink>
+                    </div>
+                    <div class="my-1">
+                        <MudLink Href="/identity/register" Underline="Underline.Always" Class="my-2">Register</MudLink>
+                    </div>
+                  
+                   
         </MudCardContent>
 
-        <MudCardActions>
-            <MudButton ButtonType="ButtonType.Submit"
-                       Variant="Variant.Filled"
-                       Color="Color.Primary"
-                       Class="ml-auto"
-                      
-                       Disabled="@isLoading">
-                @(isLoading ? "Logging in..." : "Login")
-            </MudButton>
-        </MudCardActions>
-
-        @if (!string.IsNullOrEmpty(errorMessage))
-        {
-            <MudText Typo="Typo.body2" Color="Color.Error" Class="mt-2 ml-3">@errorMessage</MudText>
-        }
+     
+              
     </MudCard>
-</EditForm>
+            
+</MudForm>
+
+    </MudItem>
+</MudGrid>
+
+<style>
+    .no-padding-actions {
+        padding-right: 0 !important;
+    }
+</style>

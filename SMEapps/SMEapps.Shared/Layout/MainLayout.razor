@@ -14,7 +14,8 @@
                              ToggledIcon="@Icons.Material.Filled.DarkMode"
                              Color="Color.Default"
                              Title="Toggle Dark / Light" />
-        <MudIconButton Icon="@Icons.Material.Filled.MoreVert" Color="Color.Inherit" Edge="Edge.End" />
+        @* <MudIconButton Icon="@Icons.Material.Filled.MoreVert" Color="Color.Inherit" Edge="Edge.End" /> *@
+        <SMEapps.Shared.Components.LogoutBtn/>
     </MudAppBar>
     <MudDrawer @bind-Open="_drawerOpen" Elevation="2">
         <MudDrawerHeader>
@@ -43,6 +44,9 @@
         // _isDarkMode = saved == "true";
         UpdateTheme();
     }
+
+
+    private bool _redirected;
 
     private void DrawerToggle() => _drawerOpen = !_drawerOpen;
 
@@ -111,6 +115,7 @@
 
         LayoutProperties = new LayoutProperties { DrawerWidthLeft = "260px" }
     };
+
 
 
  

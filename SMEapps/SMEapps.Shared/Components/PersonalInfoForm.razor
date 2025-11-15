@@ -1,0 +1,218 @@
+﻿@using MudBlazor;
+@using SMEapps.Shared.Enums
+@using SMEapps.Shared.Model;
+@using System.Globalization
+@using SMEapps.Shared.Services
+@using System.ComponentModel.DataAnnotations
+@using System.Reflection
+
+<MudContainer MaxWidth="MaxWidth.False" Class="pa-4">
+    <MudPaper Class="pa-6">
+
+        <MudForm @ref="_form">
+            <MudText Typo="Typo.h6" Class="mt-4 mb-2">Personal Information</MudText>
+            <MudDivider Class="mb-3" />
+
+            <MudGrid Class="mb-2" >
+                <MudItem xs="12" sm="6" md="3"><MudTextField Label="Title" @bind-Value="Model.Title" /></MudItem>
+                <MudItem xs="12" sm="6" md="3"><MudTextField Label="First Name" @bind-Value="Model.FirstName" Required="true" /></MudItem>
+                <MudItem xs="12" sm="6" md="3"><MudTextField Label="Middle Name" @bind-Value="Model.MiddleName" /></MudItem>
+                <MudItem xs="12" sm="6" md="3"><MudTextField Label="Last Name" @bind-Value="Model.LastName" Required="true" /></MudItem>
+            </MudGrid>
+            <MudGrid Class="mb-2">
+                <MudItem xs="12" sm="6" md="3"><MudTextField Label="Mobile" @bind-Value="Model.MobileNo" Required="true" /></MudItem>
+                <MudItem xs="12" sm="6" md="3"><MudTextField Label="Email" @bind-Value="Model.Email"  /></MudItem>
+
+                <MudItem xs="12" sm="6" md="3">
+                    <MudSelect T="string"
+                               @bind-Value="Model.Gender"
+                               Label="Gender"
+                               Dense="true"
+                               Clearable="true"
+                               Required="true">
+                        @foreach (var gender in Enum.GetValues(typeof(GenderEnum)).Cast<GenderEnum>())
+                        {
+                            var displayName = gender.GetType()
+                            .GetMember(gender.ToString())
+                            .First()
+                            .GetCustomAttribute<DisplayAttribute>()?
+                            .Name ?? gender.ToString();
+
+                            <MudSelectItem Value="@gender.ToString()">@displayName</MudSelectItem>
+                        }
+                    </MudSelect>
+
+
+
+                </MudItem>
+                <MudItem xs="12" sm="6" md="3">
+                    <MudDatePicker Label="Date of Birth" Editable="true" @bind-Date="Model.DateOfBirthDateTime" Mask="@(new DateMask("dd.MM.yyyy"))" DateFormat="dd.MM.yyyy" Variant="Variant.Text" />
+                </MudItem>
+              
+              
+            </MudGrid>
+            <MudGrid Class="mb-2">
+                <MudItem xs="12" sm="6" md="3"><MudTextField Label="District of Birth" @bind-Value="Model.DistrictOfBirth" /></MudItem>
+                <MudItem xs="12" sm="6" md="3">
+                    <MudAutocomplete T="int?"
+                                     @bind-Value="Model.NationalityId"
+                                     Label="Nationality"
+                                     Dense="true"
+                                     Clearable="true"
+                                     Required="true"
+                                     SearchFunc="SearchNationality"
+                                     ToStringFunc="@(x => NationalityList.FirstOrDefault(n => n.CommonCodeId == x)?.CodeValue ?? string.Empty)"
+                                     CoerceText="true"
+                                     ResetValueOnEmptyText="true"
+                                     CloseOnItemClick="true" />
+
+                </MudItem>
+                <MudItem xs="12" sm="6" md="3">
+                    <MudSelect T="int?"
+                               @bind-Value="Model.ReligionId"
+                               Label="Religion"
+                               Dense="true"
+                               Clearable="true"
+                               Required="true">
+                        @foreach (var data in ReligionList)
+                        {
+                            <MudSelectItem Value="@((int?)data.CommonCodeId)">@data.CodeValue</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
+                <MudItem xs="12" sm="6" md="3"><MudTextField Label="ID Type" @bind-Value="Model.IdType" /></MudItem>
+              
+            </MudGrid>
+            <MudGrid Class="mb-2">
+                <MudItem xs="12" sm="6" md="3"><MudTextField Label="National ID No" @bind-Value="Model.NationalIdNo" /></MudItem>
+                <MudItem xs="12" sm="6" md="3"><MudTextField Label="Smart NID" @bind-Value="Model.SmartNid" /></MudItem>
+                <MudItem xs="12" sm="6" md="3"><MudTextField Label="Birth Certificate No" @bind-Value="Model.BirthCertificateNo" /></MudItem>
+                <MudItem xs="12" sm="6" md="3"><MudTextField Label="Profession" @bind-Value="Model.Profession" /></MudItem>
+
+            </MudGrid>
+            <MudGrid Class="mb-2">
+                <MudItem xs="12" sm="6" md="3"><MudTextField Label="Designation" @bind-Value="Model.Designation" /></MudItem>
+                <MudItem xs="12" sm="6" md="3"><MudTextField Label="Business Name" @bind-Value="Model.BusinessName" For="@(() => Model.BusinessName)" /></MudItem>
+                <MudItem xs="12" sm="6" md="3"><MudTextField Label="Father Name" @bind-Value="Model.FatherName" /></MudItem>
+                <MudItem xs="12" sm="6" md="3"><MudTextField Label="Mother Name" @bind-Value="Model.MotherName" /></MudItem>
+               
+            </MudGrid>
+            <MudGrid Class="mb-2">
+                <MudItem xs="12" sm="6" md="3">
+                    <MudSelect T="string"
+                               @bind-Value="Model.MaritalStatus"
+                               Label="Marital Status"
+                               Dense="true"
+                               Clearable="true">
+                        @foreach (var maritalStatus in Enum.GetValues(typeof(MaritalStatusEnum)).Cast<MaritalStatusEnum>())
+                        {
+                            var displayName = maritalStatus.GetType()
+                            .GetMember(maritalStatus.ToString())
+                            .First()
+                            .GetCustomAttribute<DisplayAttribute>()?
+                            .Name ?? maritalStatus.ToString();
+
+                            <MudSelectItem Value="@maritalStatus.ToString()">@displayName</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
+                <MudItem xs="12" sm="6" md="3"><MudTextField Label="Spouse Name" @bind-Value="Model.SpouseName" /></MudItem>
+
+            </MudGrid>
+
+            <MudCardActions Class="justify-end mb-3">
+                <MudButton Color="Color.Error" Variant="Variant.Filled" OnClick="Reset">Reset</MudButton>
+                <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="Save" Disabled="@_processing" Class="ms-2">Save</MudButton>
+            </MudCardActions>
+        </MudForm>
+
+    </MudPaper>
+
+</MudContainer>
+
+@code {
+    private MudForm? _form;
+    private PersonalInfo Model = new();
+    private bool _processing = false;
+    [Inject] ISnackbar Snackbar { get; set; } = default!;
+    [Inject] CustomerService CustomerService { get; set; } = default!;
+    [Inject] CommonCodeService CommonCodeService { get; set; } = default!;
+
+    List<CommonCodeModel> GenderList = new();
+    List<CommonCodeModel> ReligionList = new();
+    List<CommonCodeModel> NationalityList = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadCommonCode();
+    }
+
+
+    private async Task Save()
+    {
+        if (_form is null)
+            return;
+
+        _processing = true;
+        try
+        {
+            await _form.Validate();
+            if (!_form.IsValid)
+            {
+                Snackbar.Add("Please correct the validation errors before saving.", MudBlazor.Severity.Warning);
+                return;
+            }
+
+            var Person = await CustomerService.PostPersonalInfo(Model);
+            if (Person is not null)
+            {
+                Snackbar.Add("Customer saved successfully.", MudBlazor.Severity.Success);
+            }
+            else
+            {
+                Snackbar.Add("Failed to save customer. Please try again.", MudBlazor.Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error while saving: {ex.Message}", MudBlazor.Severity.Error);
+        }
+        finally
+        {
+            _processing = false;
+            // Model = new();
+            StateHasChanged();
+        }
+    }
+
+    public async Task LoadCommonCode(){
+
+        try
+        {
+            var allCodes = await CommonCodeService.GetCommonCode();
+            ReligionList = allCodes.Where(x => x.CodeType == "Religion").ToList();
+            NationalityList = allCodes.Where(x => x.CodeType == "Nationality").ToList();
+        }
+        catch(Exception ex)
+        {
+            Snackbar.Add($"Something went wrong!: {ex.Message}", MudBlazor.Severity.Error);
+        }
+    }
+
+    private async Task<IEnumerable<int?>> SearchNationality(string value, CancellationToken token)
+    {
+        await Task.Delay(1, token); // simulate async if needed
+
+        if (string.IsNullOrWhiteSpace(value))
+            return NationalityList.Select(n => (int?)n.CommonCodeId);
+
+        return NationalityList
+            .Where(n => n.CodeValue.Contains(value, StringComparison.InvariantCultureIgnoreCase))
+            .Select(n => (int?)n.CommonCodeId);
+    }
+
+    private void Reset()
+    {
+        Model = new PersonalInfo();
+    }
+}
