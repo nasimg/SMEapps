@@ -20,6 +20,9 @@
                 <MudItem xs="12" sm="6" md="3"><MudTextField Label="Last Name" @bind-Value="Model.LastName" Required="true" /></MudItem>
             </MudGrid>
             <MudGrid Class="mb-2">
+                <MudItem xs="12" sm="6" md="3"><MudTextField Label="Mobile" @bind-Value="Model.MobileNo" Required="true" /></MudItem>
+                <MudItem xs="12" sm="6" md="3"><MudTextField Label="Email" @bind-Value="Model.Email"  /></MudItem>
+
                 <MudItem xs="12" sm="6" md="3">
                     <MudSelect T="string"
                                @bind-Value="Model.Gender"
@@ -45,10 +48,11 @@
                 <MudItem xs="12" sm="6" md="3">
                     <MudDatePicker Label="Date of Birth" Editable="true" @bind-Date="Model.DateOfBirthDateTime" Mask="@(new DateMask("dd.MM.yyyy"))" DateFormat="dd.MM.yyyy" Variant="Variant.Text" />
                 </MudItem>
-                <MudItem xs="12" sm="6" md="3"><MudTextField Label="District of Birth" @bind-Value="Model.DistrictOfBirth" /></MudItem>
-                <MudItem xs="12" sm="6" md="3"><MudTextField Label="Age" @bind-Value="Model.Age" /></MudItem>
+              
+              
             </MudGrid>
             <MudGrid Class="mb-2">
+                <MudItem xs="12" sm="6" md="3"><MudTextField Label="District of Birth" @bind-Value="Model.DistrictOfBirth" /></MudItem>
                 <MudItem xs="12" sm="6" md="3">
                     <MudAutocomplete T="int?"
                                      @bind-Value="Model.NationalityId"
@@ -77,18 +81,23 @@
                     </MudSelect>
                 </MudItem>
                 <MudItem xs="12" sm="6" md="3"><MudTextField Label="ID Type" @bind-Value="Model.IdType" /></MudItem>
-                <MudItem xs="12" sm="6" md="3"><MudTextField Label="National ID No" @bind-Value="Model.NationalIdNo" /></MudItem>
+              
             </MudGrid>
             <MudGrid Class="mb-2">
+                <MudItem xs="12" sm="6" md="3"><MudTextField Label="National ID No" @bind-Value="Model.NationalIdNo" /></MudItem>
                 <MudItem xs="12" sm="6" md="3"><MudTextField Label="Smart NID" @bind-Value="Model.SmartNid" /></MudItem>
                 <MudItem xs="12" sm="6" md="3"><MudTextField Label="Birth Certificate No" @bind-Value="Model.BirthCertificateNo" /></MudItem>
                 <MudItem xs="12" sm="6" md="3"><MudTextField Label="Profession" @bind-Value="Model.Profession" /></MudItem>
-                <MudItem xs="12" sm="6" md="3"><MudTextField Label="Designation" @bind-Value="Model.Designation" /></MudItem>
+
             </MudGrid>
             <MudGrid Class="mb-2">
+                <MudItem xs="12" sm="6" md="3"><MudTextField Label="Designation" @bind-Value="Model.Designation" /></MudItem>
                 <MudItem xs="12" sm="6" md="3"><MudTextField Label="Business Name" @bind-Value="Model.BusinessName" For="@(() => Model.BusinessName)" /></MudItem>
                 <MudItem xs="12" sm="6" md="3"><MudTextField Label="Father Name" @bind-Value="Model.FatherName" /></MudItem>
                 <MudItem xs="12" sm="6" md="3"><MudTextField Label="Mother Name" @bind-Value="Model.MotherName" /></MudItem>
+               
+            </MudGrid>
+            <MudGrid Class="mb-2">
                 <MudItem xs="12" sm="6" md="3">
                     <MudSelect T="string"
                                @bind-Value="Model.MaritalStatus"
@@ -107,8 +116,6 @@
                         }
                     </MudSelect>
                 </MudItem>
-            </MudGrid>
-            <MudGrid Class="mb-2">
                 <MudItem xs="12" sm="6" md="3"><MudTextField Label="Spouse Name" @bind-Value="Model.SpouseName" /></MudItem>
 
             </MudGrid>
@@ -173,7 +180,7 @@
         finally
         {
             _processing = false;
-            Model = new();
+            // Model = new();
             StateHasChanged();
         }
     }
