@@ -1,6 +1,54 @@
-﻿<Router AppAssembly="typeof(Layout.MainLayout).Assembly">
+﻿@using SMEapps.Shared.Services
+@inject NavigationManager NavigationManager
+@inject ISStore SStore
+
+<Router AppAssembly="typeof(Layout.MainLayout).Assembly">
     <Found Context="routeData">
-        <RouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)" />
-        <FocusOnNavigate RouteData="routeData" Selector="h1" />
+        @if (_hydrated)
+        {
+            <RouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)" />
+            <FocusOnNavigate RouteData="routeData" Selector="h1" />
+        }
     </Found>
 </Router>
+
+@code {
+    private bool _hydrated = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+            return;
+
+        try
+        {
+            // Determine current relative path
+            var relative = NavigationManager.ToBaseRelativePath(NavigationManager.Uri).TrimStart('/');
+
+            // Allow identity pages (login/register) to render without token
+            if (string.IsNullOrEmpty(relative) || relative.StartsWith("identity", StringComparison.OrdinalIgnoreCase))
+            {
+                _hydrated = true;
+                StateHasChanged();
+                return;
+            }
+
+            // Check token in client storage and redirect to login if missing
+            var token = await SStore.GetAsync<string>("token");
+
+            if (string.IsNullOrEmpty(token))
+            {
+                var returnUrl = "/" + (string.IsNullOrEmpty(relative) ? "" : relative);
+                NavigationManager.NavigateTo($"/identity/login?returnUrl={Uri.EscapeDataString(returnUrl)}", true);
+                return;
+            }
+
+            _hydrated = true;
+            StateHasChanged();
+        }
+        catch
+        {
+            
+        }
+    }
+}
