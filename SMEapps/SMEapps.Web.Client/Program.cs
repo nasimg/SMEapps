@@ -18,6 +18,7 @@ builder.Services.AddScoped<DashboardService>();
 builder.Services.AddScoped<CustomerService>();
 builder.Services.AddScoped<CommonCodeService>();
 builder.Services.AddScoped<ModuleService>();
+builder.Services.AddScoped<ConfirmDialogService>();
 
 // Register AuthHeader handler so it can be added to HttpClient pipeline
 builder.Services.AddTransient<AuthHeader>();

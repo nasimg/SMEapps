@@ -90,6 +90,7 @@ builder.Services.AddScoped<DashboardService>();
 builder.Services.AddScoped<CustomerService>();
 builder.Services.AddScoped<CommonCodeService>();
 builder.Services.AddScoped<ModuleService>();
+builder.Services.AddScoped<ConfirmDialogService>();
 
 var app = builder.Build();
 app.MapStaticAssets();

@@ -28,5 +28,40 @@ namespace SMEapps.Shared.Services
             return module;
 
         }
+
+        public async Task<List<ModuleModel>> GetAllModule()
+        {
+
+            var module = await ApiClient.GetFromJsonAsync<List<ModuleModel>>($"sme/api/Module/GetAll");
+            return module;
+        }
+
+        public async Task<ModuleModel> GetModuleByIdAsync(int id)
+        {
+            if (id <=0) throw new ArgumentOutOfRangeException(nameof(id));
+
+            // attempt to get by id from API
+            var module = await ApiClient.GetFromJsonAsync<ModuleModel>($"sme/api/Module/GetById/{id}");
+            return module;
+        }
+
+        public async Task<ModuleModel> UpdateModuleAsync(ModuleModel model)
+        {
+            if (model == null) throw new ArgumentNullException(nameof(model));
+
+            var response = await ApiClient.PutAsJsonAsync("sme/api/Module/UpdateAsync", model);
+            response.EnsureSuccessStatusCode();
+
+            var updated = await response.Content.ReadFromJsonAsync<ModuleModel>();
+            return updated;
+        }
+
+        public async Task<bool> DeleteModuleAsync(int id)
+        {
+            if (id <=0) throw new ArgumentOutOfRangeException(nameof(id));
+
+            var response = await ApiClient.DeleteAsync($"sme/api/Module/DeleteAsyn/{id}");
+            return response.IsSuccessStatusCode;
+        }
     }
 }

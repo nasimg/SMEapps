@@ -24,7 +24,7 @@ namespace SMEapps.Shared.Model
 
         public string GroupTitle { get; set; }
 
-        public bool? Status { get; set; }
+        public int? Status { get; set; }
         [Required(ErrorMessage = "Menu Position is required")]
         public int? MenuPosition { get; set; } = 0;
 

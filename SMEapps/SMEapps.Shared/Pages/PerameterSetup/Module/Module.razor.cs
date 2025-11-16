@@ -15,8 +15,36 @@ public partial class Module : ComponentBase
     private MudForm form = default!;
     private ModuleModel Model = new();
     private bool _processing = false;
+    private List<ModuleModel> moduleList = new();
+    private Module selectedModule;
+
+    private string searchString = "";
+
     [Inject] ISnackbar Snackbar { get; set; } = default!;
     [Inject] ModuleService ModuleService { get; set; } = default!;
+
+    [Inject] ConfirmDialogService ConfirmDialogService { get; set; } = default!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetAll();
+    }
+
+
+
+    public async Task GetAll()
+    {
+        try
+        {
+            moduleList = await ModuleService.GetAllModule();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Something went Wrong! {ex}", Severity.Error);
+        }
+
+    }
+
 
     public async Task Save()
     {
@@ -39,6 +67,24 @@ public partial class Module : ComponentBase
         finally
         {
             _processing = false;
+        }
+    }
+
+    public async Task Delete(int moduleId)
+    {
+        try
+        {
+            bool confirmed = await ConfirmDialogService.ConfirmAsync("Are you sure you want to delete this module?");
+
+            if (!confirmed)
+                return;
+
+            await ModuleService.DeleteModuleAsync(moduleId);
+            Snackbar.Add("Deleted", Severity.Success);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Something went Wrong! {ex}", Severity.Error);
         }
     }
 
