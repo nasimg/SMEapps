@@ -14,11 +14,8 @@
 
 @code {
     private bool _hydrated = false;
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    protected override async Task OnInitializedAsync()
     {
-        if (!firstRender)
-            return;
 
         try
         {
@@ -48,7 +45,7 @@
         }
         catch
         {
-            
+
         }
     }
 }
