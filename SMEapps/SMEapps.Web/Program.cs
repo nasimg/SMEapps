@@ -89,6 +89,7 @@ builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddScoped<DashboardService>();
 builder.Services.AddScoped<CustomerService>();
 builder.Services.AddScoped<CommonCodeService>();
+builder.Services.AddScoped<ModuleService>();
 
 var app = builder.Build();
 app.MapStaticAssets();

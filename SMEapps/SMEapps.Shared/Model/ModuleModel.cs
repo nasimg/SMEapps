@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 
 namespace SMEapps.Shared.Model
 {
-    public class Module
+    public class ModuleModel
     {
         public int ModuleId { get; set; }
 
-        [Required(ErrorMessage ="Title is required")]
+        [Required(ErrorMessage = "Title is required")]
         public string Title { get; set; }
 
         public string ModuleName { get; set; }
@@ -23,10 +23,10 @@ namespace SMEapps.Shared.Model
         public string Class { get; set; }
 
         public string GroupTitle { get; set; }
-        [Required(ErrorMessage = "Status is required")]
-        public int? Status { get; set; }
+
+        public bool? Status { get; set; }
         [Required(ErrorMessage = "Menu Position is required")]
-        public int? MenuPosition { get; set; }
+        public int? MenuPosition { get; set; } = 0;
 
         public string CreatedBy { get; set; }
 
@@ -36,6 +36,7 @@ namespace SMEapps.Shared.Model
 
         public DateTime? LastModifiedDate { get; set; }
 
-        public bool IsActive { get; set; }
+        [Required(ErrorMessage = "Is Active is required")]
+        public bool IsActive { get; set; } = true;
     }
 }

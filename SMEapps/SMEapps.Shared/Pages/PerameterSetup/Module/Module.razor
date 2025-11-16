@@ -5,5 +5,34 @@
 <MudContainer MaxWidth="MaxWidth.False" Class="pa-4">
     <MudPaper Class="pa-6">
         <MudText Typo="Typo.h6" Class="ma-4 ">Module</MudText>
+
+        <MudContainer MaxWidth="MaxWidth.False" Class="px-4">
+            <MudPaper Class="pa-6">
+
+                <MudForm @ref="form">
+
+                    <MudGrid Class="mb-2">
+                        <MudItem xs="12" sm="6" md="4"><MudTextField Label="Title" @bind-Value="Model.Title" /></MudItem>
+                        <MudItem xs="12" sm="6" md="4"><MudTextField Label="Module Name" @bind-Value="Model.ModuleName" Required="true" /></MudItem>
+                        <MudItem xs="12" sm="6" md="4"><MudTextField Label="Icon" @bind-Value="Model.IconName" /></MudItem>
+                    </MudGrid>
+
+                    <MudGrid Class="mb-2">
+                        <MudItem xs="12" sm="6" md="4"><MudNumericField Label="MenuPosition" @bind-Value="Model.MenuPosition" Required="true" /></MudItem>
+                        <MudItem xs="12" sm="6" md="4" Style="display:flex; align-items:flex-end;"><MudSwitch @bind-Value="Model.IsActive" Label="Is Active" Color="Color.Primary" /></MudItem>
+                    </MudGrid>
+
+
+                    <MudCardActions Class="justify-end mb-3">
+                        <MudButton Color="Color.Error" Variant="Variant.Filled" OnClick="Reset">Reset</MudButton>
+                        <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="Save" Disabled="@_processing" Class="ms-2">Save</MudButton>
+                    </MudCardActions>
+                </MudForm>
+
+            </MudPaper>
+
+        </MudContainer>
+
+
     </MudPaper>
 </MudContainer>
