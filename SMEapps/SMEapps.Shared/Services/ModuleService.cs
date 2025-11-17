@@ -49,7 +49,7 @@ namespace SMEapps.Shared.Services
         {
             if (model == null) throw new ArgumentNullException(nameof(model));
 
-            var response = await ApiClient.PutAsJsonAsync("sme/api/Module/UpdateAsync", model);
+            var response = await ApiClient.PutAsJsonAsync("sme/api/Module/UpdateAsyn", model);
             response.EnsureSuccessStatusCode();
 
             var updated = await response.Content.ReadFromJsonAsync<ModuleModel>();

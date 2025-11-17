@@ -2,12 +2,6 @@
 using MudBlazor;
 using SMEapps.Shared.Model;
 using SMEapps.Shared.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace SMEapps.Shared.Pages.PerameterSetup.Module;
 
 public partial class Module : ComponentBase
@@ -16,7 +10,9 @@ public partial class Module : ComponentBase
     private ModuleModel Model = new();
     private bool _processing = false;
     private List<ModuleModel> moduleList = new();
-    private Module selectedModule;
+    private ModuleModel selectedModule;
+
+    private string btnTest = "Save";
 
     private string searchString = "";
 
@@ -46,30 +42,30 @@ public partial class Module : ComponentBase
     }
 
 
-    public async Task Save()
-    {
-        _processing = true;
-        await form.Validate();
+    //public async Task Save()
+    //{
+    //    _processing = true;
+    //    await form.Validate();
 
-        if (!form.IsValid)
-            return;
-        try
-        {
-            await ModuleService.PostModuleAsync(Model);
-            Snackbar.Add("Module saved successfully.", Severity.Success);
-            await Reset();
+    //    if (!form.IsValid)
+    //        return;
+    //    try
+    //    {
+    //        await ModuleService.PostModuleAsync(Model);
+    //        Snackbar.Add("Module saved successfully.", Severity.Success);
+    //        await Reset();
 
-        }
-        catch (Exception ex)
-        {
-            Snackbar.Add($"Something went Wrong! {ex}", Severity.Error);
-        }
-        finally
-        {
-            _processing = false;
-            await GetAll();
-        }
-    }
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        Snackbar.Add($"Something went Wrong! {ex}", Severity.Error);
+    //    }
+    //    finally
+    //    {
+    //        _processing = false;
+    //        await GetAll();
+    //    }
+    //}
 
     public async Task Delete(int moduleId)
     {
@@ -80,7 +76,7 @@ public partial class Module : ComponentBase
             if (!confirmed)
                 return;
 
-           bool res =  await ModuleService.DeleteModuleAsync(moduleId);
+            bool res = await ModuleService.DeleteModuleAsync(moduleId);
 
             if (res)
             {
@@ -91,7 +87,7 @@ public partial class Module : ComponentBase
                 Snackbar.Add("Somethin went Wrong!", Severity.Error);
             }
         }
-        catch 
+        catch
         {
             Snackbar.Add($"Something went Wrong!", Severity.Error);
         }
@@ -101,11 +97,80 @@ public partial class Module : ComponentBase
         }
     }
 
+    private async Task Edit(ModuleModel item)
+    {
+        btnTest = "Update";
+        selectedModule = item;
+        Model = new ModuleModel
+        {
+            ModuleId = item.ModuleId,
+            Title = item.Title,
+            ModuleName = item.ModuleName,
+            IconName = item.IconName,
+            MenuPosition = item.MenuPosition,
+            IsActive = item.IsActive
+        };
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+
 
     public async Task Reset()
     {
         Model = new();
+        btnTest = "Save";
     }
+
+
+    private async Task Save()
+    {
+        _processing = true;
+
+        await form.Validate();
+
+        if (!form.IsValid)
+        {
+            _processing = false;
+            return;
+        }
+
+        if (Model.ModuleId > 0)
+        {
+
+            var update = await ModuleService.UpdateModuleAsync(Model);
+            if (update is not null)
+            {
+                Snackbar.Add("Module updated successfully!", Severity.Success);
+                Reset();
+            }
+
+
+            else
+            {
+                Snackbar.Add("Module updated Failed!", Severity.Error);
+            }
+        }
+        else
+        {
+            var res = await ModuleService.PostModuleAsync(Model);
+            if (res != null)
+            {
+                Snackbar.Add("Module saved successfully!", Severity.Success);
+                Reset();
+            }
+            else
+            {
+                Snackbar.Add("Module Saved Failed!", Severity.Error);
+            }
+
+        }
+
+        await GetAll();
+
+        _processing = false;
+    }
+
 
 }
 
