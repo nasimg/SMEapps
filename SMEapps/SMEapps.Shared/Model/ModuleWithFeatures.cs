@@ -12,5 +12,5 @@ public class ModuleWithFeatures
     public string? Url { get; set; }
     public string? Icon { get; set; }
     public int? MenuPosition { get; set; }
-    public List<Feature> Features { get; set; } = new();
+    public List<FeatureModel> Features { get; set; } = new();
 }

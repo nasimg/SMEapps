@@ -8,19 +8,22 @@ using System.Threading.Tasks;
 
 namespace SMEapps.Shared.Model
 {
-    public class Feature
+    public class FeatureModel
     {
         [Key]
         public int FeatureId { get; set; }
 
+        [Required(ErrorMessage ="Module is Required")]
         public int? ModuleId { get; set; }
 
         public int? FeatureTypeId { get; set; }
 
         [StringLength(450)]
+        [Required(ErrorMessage = "Feature Name is Required")]
         public string? FeatureName { get; set; }
 
         [StringLength(500)]
+        [Required(ErrorMessage = "Path is Required")]
         public string? Path { get; set; }
 
         [StringLength(250)]
@@ -47,11 +50,11 @@ namespace SMEapps.Shared.Model
         [Column(TypeName = "datetime")]
         public DateTime? LastModifiedDate { get; set; }
 
-        public bool IsActive { get; set; }
+        public bool IsActive { get; set; } = true;
 
         public int? FeatureCode { get; set; }
 
-        public int? OrderNo { get; set; }
+        public int? OrderNo { get; set; } = 0;
 
         public bool? IsReport { get; set; }
 

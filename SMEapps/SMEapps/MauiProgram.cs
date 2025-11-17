@@ -47,6 +47,7 @@ namespace SMEapps
             builder.Services.AddScoped<CommonCodeService>();
             builder.Services.AddScoped<ModuleService>();
             builder.Services.AddScoped<ConfirmDialogService>();
+            builder.Services.AddScoped<FeaturesService>();
             builder.Services.AddMauiBlazorWebView();
             builder.Services.AddMudServices();
 

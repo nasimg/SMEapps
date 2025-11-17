@@ -1,0 +1,96 @@
+﻿@page "/perametersetup/features"
+@inject NavigationManager NavigationManager
+@inject SMEapps.Shared.Services.ISStore SStore
+
+<MudContainer MaxWidth="MaxWidth.False" Class="pa-4">
+    <MudPaper Class="py-4">
+        <MudText Typo="Typo.h6" Class="ma-4 ">Add Feature</MudText>
+
+        <MudContainer MaxWidth="MaxWidth.False" Class="px-4">
+            <MudPaper Class="pa-4">
+
+                <MudForm @ref="form">
+
+                    <MudGrid Class="mb-2">
+                       
+                        <MudItem xs="12" sm="6" md="4">
+                            <MudSelect T="int?"
+                                       @bind-Value="Model.ModuleId"
+                                       Label="Module Name"
+                                       Dense="true"
+                                       Required="true">
+                                @foreach (var data in SelectModule)
+                                {
+                                    <MudSelectItem Value="@((int?)data.ModuleId)">@data.Title</MudSelectItem>
+                                }
+                            </MudSelect>
+                        </MudItem>
+                        <MudItem xs="12" sm="6" md="4"><MudTextField Label="Feature Name" @bind-Value="Model.FeatureName" Required="true" /></MudItem>
+                        <MudItem xs="12" sm="6" md="4"><MudTextField Label="Path" @bind-Value="Model.Path" Required="true" /></MudItem>
+                     
+                        
+                    </MudGrid>
+
+                    <MudGrid Class="mb-2">
+                        <MudItem xs="12" sm="6" md="4"><MudTextField Label="Order No" @bind-Value="Model.OrderNo" /></MudItem>
+                        <MudItem xs="12" sm="6" md="4" Style="display:flex; align-items:flex-end;"><MudSwitch @bind-Value="Model.IsActive" Label="Is Active" Color="Color.Primary" /></MudItem>
+                    </MudGrid>
+
+
+                    <MudCardActions Class="justify-end mb-3">
+                        <MudButton Color="Color.Error" Variant="Variant.Filled" OnClick="Reset">Reset</MudButton>
+                        <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="Save" Disabled="@_processing" Class="ms-2">@btnTest</MudButton>
+                    </MudCardActions>
+                </MudForm>
+
+            </MudPaper>
+
+        </MudContainer>
+
+
+    </MudPaper>
+
+
+</MudContainer>
+
+<MudContainer MaxWidth="MaxWidth.False" Class="pa-4">
+    <MudPaper Class="pa-4">
+        <MudTable Items="@FeatureList">
+
+            <ToolBarContent>
+                <MudText Typo="Typo.h6">Module List</MudText>
+                <MudSpacer />
+                <MudTextField @bind-Value="searchString" Placeholder="Search"
+                              Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" />
+            </ToolBarContent>
+
+            <HeaderContent>
+                <MudTh>Title</MudTh>
+                <MudTh>Path</MudTh>
+                <MudTh>Order No</MudTh>  
+                <MudTh>Status</MudTh>  
+                <MudTh>Action</MudTh>
+            </HeaderContent>
+
+            <RowTemplate>
+                <MudTd DataLabel="Title">@context.FeatureName</MudTd>
+                <MudTd DataLabel="path">@context.Path</MudTd>
+                <MudTd DataLabel="path">@context.OrderNo</MudTd>
+                <MudTd DataLabel="path" Style="@($"color:{(context.IsActive ? "green" : "red")}")"> @(context.IsActive ? "Active" : "Inactive")</MudTd>
+                <MudTd DataLabel="Action">
+                    <MudFab Color="Color.Secondary" StartIcon="@Icons.Material.Outlined.Edit" Size="Size.Small" OnClick="@(() => Edit(context))" />
+                    <MudFab Color="Color.Error" StartIcon="@Icons.Material.Outlined.Delete" OnClick="@(() => Delete(context.FeatureId))" Size="Size.Small" />
+                </MudTd>
+            </RowTemplate>
+
+            <PagerContent>
+                <MudTablePager />
+            </PagerContent>
+        </MudTable>
+
+
+
+    </MudPaper>
+
+
+</MudContainer>
