@@ -67,6 +67,7 @@ public partial class Module : ComponentBase
         finally
         {
             _processing = false;
+            await GetAll();
         }
     }
 
@@ -74,17 +75,29 @@ public partial class Module : ComponentBase
     {
         try
         {
-            bool confirmed = await ConfirmDialogService.ConfirmAsync("Are you sure you want to delete this module?");
+            bool confirmed = await ConfirmDialogService.ConfirmAsync("Are you sure you want to delete?");
 
             if (!confirmed)
                 return;
 
-            await ModuleService.DeleteModuleAsync(moduleId);
-            Snackbar.Add("Deleted", Severity.Success);
+           bool res =  await ModuleService.DeleteModuleAsync(moduleId);
+
+            if (res)
+            {
+                Snackbar.Add("Module deleted successfully.", Severity.Success);
+            }
+            else
+            {
+                Snackbar.Add("Somethin went Wrong!", Severity.Error);
+            }
         }
-        catch (Exception ex)
+        catch 
         {
-            Snackbar.Add($"Something went Wrong! {ex}", Severity.Error);
+            Snackbar.Add($"Something went Wrong!", Severity.Error);
+        }
+        finally
+        {
+            await GetAll();
         }
     }
 
