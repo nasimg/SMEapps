@@ -1,47 +1,7 @@
 ﻿@page "/customer"
-@inject NavigationManager NavigationManager
-@inject SMEapps.Shared.Services.ISStore SStore
-
 <MudContainer MaxWidth="MaxWidth.False" Class="pa-4">
-    <MudPaper Class="pa-6">
-        <MudText Typo="Typo.h6" Class="mt-4">Add New Customer</MudText>
-
-        @if (_hydrated)
-        {
-            <PersonalInfoForm />
-        }
-       
-    </MudPaper>
+ <MudPaper Class="pa-6">
+ <MudText Typo="Typo.h6" Class="ma-4 ">Add New Customer</MudText>
+ <PersonalInfoForm />
+ </MudPaper>
 </MudContainer>
-
-@code {
-    private bool _hydrated = false;
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (!firstRender)
-            return;
-
-        try
-        {
- 
-            var token = await SStore.GetAsync<string>("token");
-
-            if (string.IsNullOrEmpty(token))
-            {
-                // redirect to login if no token
-                var relative = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
-                var returnUrl = "/" + (string.IsNullOrEmpty(relative) ? "" : relative);
-                NavigationManager.NavigateTo($"/identity/login?returnUrl={Uri.EscapeDataString(returnUrl)}", true);
-                return;
-            }
-
-            _hydrated = true;
-            StateHasChanged();
-        }
-        catch
-        {
-            // in case JSRuntime still fails, keep showing loading
-        }
-    }
-}

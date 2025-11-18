@@ -1,0 +1,85 @@
+﻿@page "/role-features"
+@inject HttpClient Http
+@inject ISnackbar Snackbar
+
+<MudPaper Class="pa-4">
+
+    <MudTextField @bind-Value="SelectedRoleId" Label="Enter Role ID" Variant="Variant.Outlined" Style="width:300px" />
+
+    <MudTextField @bind-Value="SelectedModuleIdString" Label="Enter Module ID" Variant="Variant.Outlined" Style="width:300px" Class="mt-3" />
+
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mt-3"
+               OnClick="LoadFeatures"
+               Disabled="@(!CanLoad)">
+        Load Features
+    </MudButton>
+
+    <MudDivider Class="my-4" />
+
+    @if (Features != null && Features.Count > 0)
+    {
+        <MudTable Items="Features" Hover="true" Bordered="true">
+            <HeaderContent>
+                <MudTh>Feature</MudTh>
+                <MudTh>View</MudTh>
+                <MudTh>Add</MudTh>
+                <MudTh>Update</MudTh>
+                <MudTh>Delete</MudTh>
+                <MudTh>Report</MudTh>
+            </HeaderContent>
+
+            <RowTemplate>
+                <MudTd>@context.FeatureName</MudTd>
+
+                <MudTd><MudSwitch T="bool" @bind-Checked="context.CanView" /></MudTd>
+                <MudTd><MudSwitch T="bool" @bind-Checked="context.CanAdd" /></MudTd>
+                <MudTd><MudSwitch T="bool" @bind-Checked="context.CanUpdate" /></MudTd>
+                <MudTd><MudSwitch T="bool" @bind-Checked="context.CanDelete" /></MudTd>
+                <MudTd><MudSwitch T="bool" @bind-Checked="context.CanReport" /></MudTd>
+            </RowTemplate>
+        </MudTable>
+
+        <MudButton Color="Color.Primary" Class="mt-4" Variant="Variant.Filled" OnClick="SavePermissions">
+            Save Changes
+        </MudButton>
+    }
+</MudPaper>
+
+@code {
+    string SelectedRoleId;
+    string SelectedModuleIdString;  // module id as string input
+    int SelectedModuleId => int.TryParse(SelectedModuleIdString, out var id) ? id : 0;
+
+    List<RoleFeature> Features = new();
+
+    bool CanLoad => !string.IsNullOrEmpty(SelectedRoleId) && SelectedModuleId > 0;
+
+    async Task LoadFeatures()
+    {
+        try
+        {
+            var url = $"api/RoleFeature/get-features-by-role/{SelectedRoleId}/{SelectedModuleId}";
+            Features = await Http.GetFromJsonAsync<List<RoleFeature>>(url) ?? new();
+
+            if (Features.Count == 0)
+                Snackbar.Add("No features found!", Severity.Warning);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add("Error loading features", Severity.Error);
+        }
+    }
+
+    async Task SavePermissions()
+    {
+        if (Features == null || Features.Count == 0)
+            return;
+
+        var res = await Http.PostAsJsonAsync("api/RoleFeature/update-role-features", Features);
+
+        if (res.IsSuccessStatusCode)
+            Snackbar.Add("Permissions saved", Severity.Success);
+        else
+            Snackbar.Add("Save failed", Severity.Error);
+    }
+}

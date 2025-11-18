@@ -16,7 +16,7 @@ builder.Services.AddRazorComponents()
     .AddInteractiveWebAssemblyComponents();
 
 builder.Services.AddMudServices();
-
+builder.Services.AddScoped<CommonCodeService>();
 builder.Services.AddSingleton<IFormFactor, FormFactor>();
 builder.Services.AddScoped<ISStore, SStore>();
 
@@ -77,7 +77,7 @@ builder.Services.AddAuthentication(options =>
 });
 
 // Dependency injection registrations
-
+builder.Services.AddMudServices();
 //builder.Services.AddTransient<AuthHeaderHandler>();
 // Register Authentication Services
 builder.Services.AddScoped<WebAuthStateProvider>();
@@ -89,6 +89,9 @@ builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddScoped<DashboardService>();
 builder.Services.AddScoped<CustomerService>();
 builder.Services.AddScoped<CommonCodeService>();
+builder.Services.AddScoped<ModuleService>();
+builder.Services.AddScoped<ConfirmDialogService>();
+builder.Services.AddScoped<FeaturesService>();
 
 var app = builder.Build();
 app.MapStaticAssets();

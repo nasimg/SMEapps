@@ -1,0 +1,166 @@
+﻿@page "/commoncode"
+@using SMEapps.Shared.Services
+@using MudBlazor
+@using static SMEapps.Shared.Services.CommonCodeService
+@inject CommonCodeService _service
+@inject NavigationManager NavManager
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+
+
+<MudContainer MaxWidth="MaxWidth.False" Class="pa-4">
+    <MudPaper Class="pa-6">
+        <MudStack Row Class="mb-4 d-flex justify-space-between align-center">
+            <MudText Typo="Typo.h5">Common Code List</MudText>
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       OnClick="GoToAdd">
+                Add Common Code
+            </MudButton>
+        </MudStack>
+
+        <MudTable Items="_codes"
+                  Dense="true"
+                  Hover="true"
+                  Bordered="true"
+                  Elevation="1"
+                  Loading="_loading">
+
+            <HeaderContent>
+                <MudTh>Code Type</MudTh>
+                <MudTh>Code Value</MudTh>
+                @* <MudTh>Parent Id</MudTh> *@
+                <MudTh Style="width:120px;">Status</MudTh>
+                <MudTh Style="width:120px;">Actions</MudTh>
+            </HeaderContent>
+
+            <RowTemplate>
+                <MudTd DataLabel="Code Type">@context.CodeType</MudTd>
+                <MudTd DataLabel="Code Value">@context.CodeValue</MudTd>
+                @* <MudTd DataLabel="Parent Id">@context.ParentId</MudTd> *@
+
+                <!-- STATUS ICON -->
+                <MudTd DataLabel="Status" Class="text-center">
+                    @if (context.Status)
+                    {
+                        <MudIcon Icon="@Icons.Material.Filled.CheckCircle"
+                                 Color="Color.Success"
+                                 Title="Active" />
+                    }
+                    else
+                    {
+                        <MudIcon Icon="@Icons.Material.Filled.Cancel"
+                                 Color="Color.Error"
+                                 Title="Inactive" />
+                    }
+                </MudTd>
+
+                <!-- ACTIONS -->
+                <MudTd DataLabel="Actions">
+                    <MudTooltip Text="Edit">
+                        <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                                       Size="Size.Small"
+                                       Color="Color.Primary"
+                                       OnClick="@(() => Edit(context))" />
+                    </MudTooltip>
+
+                    <MudTooltip Text="Delete">
+                        <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                                       Size="Size.Small"
+                                       Color="Color.Error"
+                                       OnClick="@(() => Delete(context))" />
+                    </MudTooltip>
+                </MudTd>
+            </RowTemplate>
+
+            <NoRecordsContent>
+                <MudText>No codes found. <MudLink Href="/commoncode/add">Add one?</MudLink></MudText>
+            </NoRecordsContent>
+        </MudTable>
+    </MudPaper>
+</MudContainer>
+
+@code {
+    private List<CommonCode> _codes = new();
+    private bool _loading;
+
+    protected override async Task OnInitializedAsync() => await LoadData();
+
+    private async Task LoadData()
+    {
+        _loading = true;
+        try
+        {
+            _codes = await _service.GetAllAsync() ?? new();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error loading codes: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            _loading = false;
+            StateHasChanged();
+        }
+    }
+
+
+    private void GoToAdd() => NavManager.NavigateTo("/commoncode/add");
+
+    private void Edit(CommonCode code) =>
+        NavManager.NavigateTo($"/commoncode/edit/{code.CommonCodeId}");
+
+    private async Task Delete(CommonCode code)
+    {
+        var parameters = new DialogParameters
+        {
+            ["ContentText"] = $"Delete **{code.CodeType} - {code.CodeValue}**?",
+            ["ButtonText"] = "Delete",
+            ["Color"] = Color.Error
+        };
+
+        var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
+
+        var dialog = DialogService.ShowMessageBox(
+       "Confirm Delete",
+       (MarkupString)$"Are you sure you want to delete <b>{code.CodeType} - {code.CodeValue}</b>?",
+       yesText: "Delete",
+       cancelText: "Cancel",
+       options: new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall }
+   );
+        var confirmed = await dialog;
+
+        if (confirmed == true)
+        {
+            var result = await _service.DeleteAsync(code.CommonCodeId);
+            if (result.StatusCode == 200)
+            {
+                Snackbar.Add("Deleted successfully", Severity.Success);
+                _codes.Remove(code);
+                StateHasChanged();
+            }
+            else
+            {
+                Snackbar.Add(result.Message ?? "Delete failed", Severity.Error);
+            }
+        }
+    }
+ 
+    private async Task ToggleStatus(bool newValue, CommonCode code)
+    {
+        var original = code.Status;
+        code.Status = newValue;
+
+        var result = await _service.SaveAsync(code);
+        if (result.StatusCode != 200)
+        {
+            code.Status = original;
+            Snackbar.Add(result.Message ?? "Failed to update status", Severity.Error);
+            StateHasChanged();
+        }
+        else
+        {
+            Snackbar.Add("Status updated", Severity.Success);
+        }
+    }
+}
