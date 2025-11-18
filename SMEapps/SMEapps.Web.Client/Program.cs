@@ -17,6 +17,11 @@ builder.Services.AddSingleton<ISStore, SStore>();
 
 // ?? Dashboard and common code services
 builder.Services.AddScoped<DashboardService>();
+builder.Services.AddScoped<CustomerService>();
+builder.Services.AddScoped<CommonCodeService>();
+builder.Services.AddScoped<ModuleService>();
+builder.Services.AddScoped<ConfirmDialogService>();
+builder.Services.AddScoped<FeaturesService>();
 
 // ? Register IHttpClientFactory support (needed for your CommonCodeService)
 builder.Services.AddHttpClient();

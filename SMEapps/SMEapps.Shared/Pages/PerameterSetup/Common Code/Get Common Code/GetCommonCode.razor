@@ -1,6 +1,7 @@
 ﻿@page "/commoncode"
 @using SMEapps.Shared.Services
 @using MudBlazor
+@using static SMEapps.Shared.Services.CommonCodeService
 @inject CommonCodeService _service
 @inject NavigationManager NavManager
 @inject ISnackbar Snackbar
@@ -102,6 +103,7 @@
             StateHasChanged();
         }
     }
+
 
     private void GoToAdd() => NavManager.NavigateTo("/commoncode/add");
 

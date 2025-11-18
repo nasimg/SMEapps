@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SMEapps.Shared.Pages.Person_Info
+namespace SMEapps.Shared.Pages.Admin.Role_Permission
 {
-    public partial class PersonInfo
+    public partial class RolePermission
     {
 
     }

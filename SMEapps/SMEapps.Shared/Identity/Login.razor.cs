@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Forms;
 using MudBlazor;
 using SMEapps.Shared.Model;
 using SMEapps.Shared.Services;
@@ -10,12 +9,12 @@ namespace SMEapps.Shared.Identity
     public partial class Login : ComponentBase
     {
         private LoginModel loginModel = new();
-        private string? errorMessage;
         private bool isLoading = false;
+        MudForm form = default!;
 
         [Inject] public IHttpClientFactory HttpClientFactory { get; set; } = default!;
         [Inject] public NavigationManager NavigationManager { get; set; } = default!;
-        [Inject] public SMEapps.Shared.Services.ISStore SStore { get; set; } = default!;
+        [Inject] public ISStore SStore { get; set; } = default!;
         [Inject] ISnackbar Snackbar { get; set; } = default!;
 
         private HttpClient ApiClient => HttpClientFactory.CreateClient("ApiClient");
@@ -23,19 +22,16 @@ namespace SMEapps.Shared.Identity
         private bool _processing = false;
 
 
-        private async Task HandleValidSubmit(EditContext editContext)
+        private async Task HandleValidSubmit()
         {
             isLoading = true;
-            errorMessage = null;
-
-          
-
             try
             {
-                // Call a simple login API that just checks credentials
+
+                await form.Validate();
+                if (!form.IsValid) return;
+
                 _processing = true;
-                await Task.Delay(2000);
-                _processing = false;
                 var response = await ApiClient.PostAsJsonAsync("Identity/GetToken", loginModel);
 
                 if (response.IsSuccessStatusCode)
@@ -86,10 +82,14 @@ namespace SMEapps.Shared.Identity
             }
             catch (Exception ex)
             {
-                errorMessage = $"Error: {ex.Message}";
+                Snackbar.Add($"Login Failed! {ex}", Severity.Error, c =>
+                {
+                    c.SnackbarVariant = Variant.Filled;
+                    c.VisibleStateDuration = 3000;
+                });
             }
 
-            isLoading = false;
+            _processing = false;
         }
     }
 }

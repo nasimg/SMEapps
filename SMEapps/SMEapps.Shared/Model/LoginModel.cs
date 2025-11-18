@@ -9,7 +9,7 @@ namespace SMEapps.Shared.Model
 {
     public class LoginModel
     {
-        [Required(ErrorMessage = "Username is required")]
+        [Required(ErrorMessage = "Username is required X")]
         [DataType(DataType.EmailAddress)]
         [EmailAddress]
         public string Email { get; set; } = string.Empty;

@@ -2,17 +2,42 @@
 @using SMEapps.Shared.Services
 <MudPaper Width="250px" Elevation="0" Class="py-3">
     <MudNavMenu Bordered="true">
-        <MudNavLink Href="/dashboard">Dashboard</MudNavLink>
-        <MudNavLink Match="NavLinkMatch.Prefix" Href="/components/navmenu">Servers</MudNavLink>
-        <MudNavLink Href="/billing" Disabled="true">Billing</MudNavLink>
-        <MudNavGroup Title="Settings" Expanded="true">
-            <MudNavLink Href="/person-info">Person Info</MudNavLink>
-            <MudNavLink Href="/security">Security</MudNavLink>
-        </MudNavGroup>
-        <MudNavGroup Title="Parameter Setup">
-			<MudNavLink Href="/commoncode">Common Code</MudNavLink>
-        </MudNavGroup>
-        <MudNavLink Href="/about">About</MudNavLink>
+
+        @if(!isLoaded || modules == null){
+        }
+        else{
+        @foreach (var module in modules.OrderBy(m => m.MenuPosition))
+        {
+            var moduleKey = string.IsNullOrWhiteSpace(module?.Name) ? module?.Url ?? Guid.NewGuid().ToString() : module.Name!;
+            EnsureModuleKey(moduleKey);
+
+            if (module?.Features != null && module.Features.Count > 0)
+            {
+                <MudNavGroup Title="@module.Name" Icon="@module.Icon" @bind-Expanded="moduleExpanded[moduleKey]">
+                  
+                    @foreach (var feature in module.Features.OrderBy(f => f.OrderNo))
+                    {
+                        if (!string.IsNullOrWhiteSpace(feature.Path))
+                        {
+                            <MudNavLink Href="@feature.Path">@feature.FeatureName</MudNavLink>
+                        }
+                        else
+                        {
+                                <MudNavLink>@feature.FeatureName</MudNavLink>
+                        }
+                    }
+                </MudNavGroup>
+            }
+            else
+            {
+                    <MudNavLink Href="@module.Url" Icon="fas fa-home">@module.Name</MudNavLink>
+            }
+        }
+
+        }
+
+       
+
     </MudNavMenu>
 </MudPaper>
 
@@ -24,17 +49,16 @@
     private bool isLoaded = false;
     private List<ModuleWithFeatures>? modules;
 
-    // Track expanded modules by a key (module name). Use a HashSet for O(1) checks.
-    private readonly HashSet<string> expandedModules = new();
+    // Track expanded modules by a key (module name). Use a dictionary for two-way binding with MudNavGroup.
+    private readonly Dictionary<string, bool> moduleExpanded = new();
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (!firstRender)
-            return; 
-      
+            return;
+
         string? roleName = null;
         roleName = await SStore.GetAsync<string>("roleName");
-        
 
 
         if (string.IsNullOrWhiteSpace(roleName))
@@ -47,6 +71,17 @@
         try
         {
             modules = await DashboardService.GetModulesByRoleNameAsync(roleName);
+
+            // Initialize expanded dictionary for modules that have features
+            if (modules != null)
+            {
+                foreach (var m in modules)
+                {
+                    var key = string.IsNullOrWhiteSpace(m?.Name) ? m?.Url ?? Guid.NewGuid().ToString() : m!.Name!;
+                    if (!moduleExpanded.ContainsKey(key))
+                        moduleExpanded[key] = false;
+                }
+            }
         }
         catch
         {
@@ -64,13 +99,21 @@
         if (string.IsNullOrWhiteSpace(moduleKey))
             return;
 
-        if (expandedModules.Contains(moduleKey))
-            expandedModules.Remove(moduleKey);
+        if (moduleExpanded.ContainsKey(moduleKey))
+            moduleExpanded[moduleKey] = !moduleExpanded[moduleKey];
         else
-            expandedModules.Add(moduleKey);
+            moduleExpanded[moduleKey] = true;
 
         StateHasChanged();
     }
 
-    private bool IsModuleExpanded(string moduleKey) => !string.IsNullOrWhiteSpace(moduleKey) && expandedModules.Contains(moduleKey);
+    private bool IsModuleExpanded(string moduleKey) => !string.IsNullOrWhiteSpace(moduleKey) && moduleExpanded.ContainsKey(moduleKey) && moduleExpanded[moduleKey];
+
+    private void EnsureModuleKey(string key)
+    {
+        if (string.IsNullOrWhiteSpace(key))
+            return;
+        if (!moduleExpanded.ContainsKey(key))
+            moduleExpanded[key] = false;
+    }
 }

@@ -1,37 +1,63 @@
 ﻿@using Microsoft.AspNetCore.Components.Authorization
 @using SMEapps.Shared.Services
+@using System.Linq
+@using System.Threading.Tasks
 @inject AuthenticationStateProvider AuthProvider
 @inject ISStore SStore
 @inject NavigationManager NavigationManager
 
-
+<MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@ConfirmLogout" Disabled="@_processing">
+    @if (_processing)
+    {
+        <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+        <MudText Class="ms-2">Processing</MudText>
+    }
+    else
+    {
+        <MudText>Logout</MudText>
+    }
+</MudButton>
 
 @code {
-    private bool? canceled;
+    private bool _processing = false;
+    [Inject] ISnackbar Snackbar { get; set; } = default!;
     private async Task ConfirmLogout()
     {
-        // var dialog = await DialogService.ShowConfirmationAsync(
-        //     "Do you want to logout?", "Yes", "No", "Logout?");
+        _processing = true;
+        try
+        {
+            // If the provider exposes a LogoutAsync method, invoke it to update auth state
+            var m = AuthProvider?.GetType().GetMethod("LogoutAsync");
+            if (m?.Invoke(AuthProvider, null) is Task t)
+                await t;
 
-        // if ((await dialog.Result).Cancelled)
-        // {
-        //     NavigationManager.NavigateTo("/");
-        //     return;
-        // }
+            // Remove known keys from storage
+            var keys = new[] { "token", "refreshToken", "userName", "userId", "emailId",
+ "roleId", "roleName", "validity", "expiredTime", "id", };
+            await Task.WhenAll(keys.Select(k => SStore.RemoveAsync(k)));
 
-        // await Task.Run(async () =>
-        // {
-        //     logout
-        //     var m = AuthProvider.GetType().GetMethod("LogoutAsync");
-        //     if (m?.Invoke(AuthProvider, null) is Task t) await t;
 
-           
-        //     var keys = new[] { "token","refreshToken","userName","userId","emailId",
-        //                        "roleId","roleName","validity","expiredTime","id" };
-        //     await Task.WhenAll(keys.Select(SStore.RemoveAsync));
-        // });
+            Snackbar.Add("Logged Out successfully.", Severity.Error, c =>
+                       {
+                           c.SnackbarVariant = Variant.Filled;
+                           c.VisibleStateDuration = 3000;
+                       });
+            await Task.Delay(100);
 
-        // await Task.Delay(100);
-        // NavigationManager.NavigateTo("/identity/login");
+        }
+        catch(Exception ex)
+        {
+            Snackbar.Add($"Something Went Wrong. {ex}", Severity.Error, c =>
+                       {
+                           c.SnackbarVariant = Variant.Filled;
+                           c.VisibleStateDuration = 3000;
+                       });
+        }
+        finally
+        {
+            
+            _processing = false;
+        }
+        NavigationManager.NavigateTo("/identity/login");
     }
 }
