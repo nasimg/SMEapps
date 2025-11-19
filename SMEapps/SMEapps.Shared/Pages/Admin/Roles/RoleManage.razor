@@ -1,12 +1,23 @@
 ﻿@page "/role-features"
-@inject HttpClient Http
+@inject IHttpClientFactory HttpFactory
 @inject ISnackbar Snackbar
 
 <MudPaper Class="pa-4">
 
-    <MudTextField @bind-Value="SelectedRoleId" Label="Enter Role ID" Variant="Variant.Outlined" Style="width:300px" />
+    <!-- ROLE DROPDOWN -->
+    <MudSelect T="string" Label="Select Role" @bind-Value="SelectedRoleId" Dense="true" Style="width:300px">
+        @foreach (var r in Roles)
+        {
+            <MudSelectItem Value="@r.Id">@r.Name</MudSelectItem>
+        }
+    </MudSelect>
 
-    <MudTextField @bind-Value="SelectedModuleIdString" Label="Enter Module ID" Variant="Variant.Outlined" Style="width:300px" Class="mt-3" />
+    <!-- MODULE DROPDOWN -->
+    <MudSelect T="int" Label="Select Module" @bind-Value="SelectedModuleId" Dense="true" Style="width:300px" Class="mt-3">
+        <MudSelectItem Value="1">Module 1</MudSelectItem>
+        <MudSelectItem Value="2">Module 2</MudSelectItem>
+        <MudSelectItem Value="3">Module 3</MudSelectItem>
+    </MudSelect>
 
     <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mt-3"
                OnClick="LoadFeatures"
@@ -16,7 +27,7 @@
 
     <MudDivider Class="my-4" />
 
-    @if (Features != null && Features.Count > 0)
+    @if (Features?.Count > 0)
     {
         <MudTable Items="Features" Hover="true" Bordered="true">
             <HeaderContent>
@@ -30,7 +41,6 @@
 
             <RowTemplate>
                 <MudTd>@context.FeatureName</MudTd>
-
                 <MudTd><MudSwitch T="bool" @bind-Checked="context.CanView" /></MudTd>
                 <MudTd><MudSwitch T="bool" @bind-Checked="context.CanAdd" /></MudTd>
                 <MudTd><MudSwitch T="bool" @bind-Checked="context.CanUpdate" /></MudTd>
@@ -39,26 +49,63 @@
             </RowTemplate>
         </MudTable>
 
-        <MudButton Color="Color.Primary" Class="mt-4" Variant="Variant.Filled" OnClick="SavePermissions">
+        <MudButton Class="mt-4" Variant="Variant.Filled" Color="Color.Primary" OnClick="SavePermissions">
             Save Changes
         </MudButton>
     }
+
 </MudPaper>
 
 @code {
-    string SelectedRoleId;
-    string SelectedModuleIdString;  // module id as string input
-    int SelectedModuleId => int.TryParse(SelectedModuleIdString, out var id) ? id : 0;
 
+    // ------------ HTTP CLIENT ------------
+    HttpClient Http;
+
+    // ------------ ROLE VM ------------
+    public class RoleDropdownVm
+    {
+        public string Id { get; set; }
+        public string Name { get; set; }
+    }
+
+    List<RoleDropdownVm> Roles = new();
+
+    // ------------ SELECTED VALUES ------------
+    string SelectedRoleId;
+    int SelectedModuleId;
+
+    bool CanLoad => !string.IsNullOrWhiteSpace(SelectedRoleId) && SelectedModuleId > 0;
+
+    // ------------ FEATURES LIST ------------
     List<RoleFeature> Features = new();
 
-    bool CanLoad => !string.IsNullOrEmpty(SelectedRoleId) && SelectedModuleId > 0;
+    // ------------ INITIALIZATION ------------
+    protected override async Task OnInitializedAsync()
+    {
+        Http = HttpFactory.CreateClient("ApiClient");   // CORRECT CLIENT
+        await LoadRoles();
+    }
 
+    // ------------ LOAD ROLES ------------
+    async Task LoadRoles()
+    {
+        try
+        {
+            Roles = await Http.GetFromJsonAsync<List<RoleDropdownVm>>("/Identity/GetRoles");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            Snackbar.Add("Error loading roles", Severity.Error);
+        }
+    }
+
+    // ------------ LOAD FEATURES ------------
     async Task LoadFeatures()
     {
         try
         {
-            var url = $"api/RoleFeature/get-features-by-role/{SelectedRoleId}/{SelectedModuleId}";
+            var url = $"sme/api/RoleFeature/GetFeaturesByRole/get-features-by-role/{SelectedRoleId}/{SelectedModuleId}";
             Features = await Http.GetFromJsonAsync<List<RoleFeature>>(url) ?? new();
 
             if (Features.Count == 0)
@@ -66,16 +113,18 @@
         }
         catch (Exception ex)
         {
+            Console.WriteLine(ex);
             Snackbar.Add("Error loading features", Severity.Error);
         }
     }
 
+    // ------------ SAVE PERMISSIONS ------------
     async Task SavePermissions()
     {
         if (Features == null || Features.Count == 0)
             return;
 
-        var res = await Http.PostAsJsonAsync("api/RoleFeature/update-role-features", Features);
+        var res = await Http.PostAsJsonAsync("sme/api/RoleFeature/update-role-features", Features);
 
         if (res.IsSuccessStatusCode)
             Snackbar.Add("Permissions saved", Severity.Success);
