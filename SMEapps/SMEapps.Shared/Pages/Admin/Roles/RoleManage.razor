@@ -9,7 +9,7 @@
                Variant="Variant.Outlined" Dense="true" Style="width:300px">
         @foreach (var r in Roles)
         {
-            <MudSelectItem Value="@r.Id">@r.Name</MudSelectItem>
+            <MudSelectItem Value="@r.Name">@r.Name</MudSelectItem>
         }
     </MudSelect>
 
@@ -35,33 +35,22 @@
         <MudTable Items="Features" Hover="true" Bordered="true">
             <HeaderContent>
                 <MudTh>Feature</MudTh>
-                <MudTh>View</MudTh>
-                <MudTh>Add</MudTh>
-                <MudTh>Update</MudTh>
-                <MudTh>Delete</MudTh>
-                <MudTh>Report</MudTh>
+                <MudTh>Path</MudTh>
+                <MudTh>Active</MudTh>
             </HeaderContent>
 
             <RowTemplate>
-                <MudTd>@context.FeatureKeyNavigation.FeatureName</MudTd>
-                <MudTd><MudSwitch T="bool" @bind-Checked="context.CanView" /></MudTd>
-                <MudTd><MudSwitch T="bool" @bind-Checked="context.CanAdd" /></MudTd>
-                <MudTd><MudSwitch T="bool" @bind-Checked="context.CanUpdate" /></MudTd>
-                <MudTd><MudSwitch T="bool" @bind-Checked="context.CanDelete" /></MudTd>
-                <MudTd><MudSwitch T="bool" @bind-Checked="context.CanReport" /></MudTd>
+                <MudTd>@context.FeatureName</MudTd>
+                <MudTd>@context.Path</MudTd>
+                <MudTd>@context.IsActive</MudTd>
             </RowTemplate>
         </MudTable>
-
-        <MudButton Class="mt-4" Variant="Variant.Filled" Color="Color.Primary" OnClick="SavePermissions">
-            Save Changes
-        </MudButton>
     }
 
 </MudPaper>
 
 @code {
 
-    // ------------ HTTP CLIENT ------------
     HttpClient Http;
 
     // ------------ ROLE VM ------------
@@ -78,8 +67,28 @@
         public string Title { get; set; }
     }
 
+    // ----------- USED FOR API RESPONSE -----------
+    public class ModuleWithFeatures
+    {
+        public string Name { get; set; }
+        public string Url { get; set; }
+        public string Icon { get; set; }
+        public int? MenuPosition { get; set; }
+        public List<FeatureVm> Features { get; set; }
+    }
+
+    public class FeatureVm
+    {
+        public int FeatureId { get; set; }
+        public int ModuleId { get; set; }
+        public string FeatureName { get; set; }
+        public string Path { get; set; }
+        public bool IsActive { get; set; }
+    }
+
     List<RoleDropdownVm> Roles = new();
     List<ModuleVm> Modules = new();
+    List<FeatureVm> Features = new();
 
     // ------------ SELECTED VALUES ------------
     string SelectedRoleId;
@@ -87,13 +96,10 @@
 
     bool CanLoad => !string.IsNullOrWhiteSpace(SelectedRoleId) && SelectedModuleId > 0;
 
-    // ------------ FEATURES LIST ------------
-    List<RoleFeature> Features = new();
-
     // ------------ INITIALIZATION ------------
     protected override async Task OnInitializedAsync()
     {
-        Http = HttpFactory.CreateClient("ApiClient");   // Correct HttpClient
+        Http = HttpFactory.CreateClient("ApiClient");
         await LoadRoles();
         await LoadModules();
     }
@@ -131,8 +137,18 @@
     {
         try
         {
-            var url = $"/sme/api/RoleFeature/GetFeaturesByRole/get-features-by-role/{SelectedRoleId}/{SelectedModuleId}";
-            Features = await Http.GetFromJsonAsync<List<RoleFeature>>(url) ?? new();
+            // 1. Load modules + features for selected ROLE
+            var roleModules = await Http.GetFromJsonAsync<List<ModuleWithFeatures>>(
+                $"/sme/api/RoleFeature/GetModulesByRoleName/modules/{SelectedRoleId}"
+            );
+
+            // 2. Filter by selected module
+            var selectedModule = roleModules?.FirstOrDefault(x => x.Features.Any(f => f.ModuleId == SelectedModuleId));
+
+            Features = selectedModule?.Features
+                       ?.Where(f => f.ModuleId == SelectedModuleId)
+                       .ToList()
+                       ?? new();
 
             if (Features.Count == 0)
                 Snackbar.Add("No features found!", Severity.Warning);
@@ -142,19 +158,5 @@
             Console.WriteLine(ex);
             Snackbar.Add("Error loading features", Severity.Error);
         }
-    }
-
-    // ------------ SAVE PERMISSIONS ------------
-    async Task SavePermissions()
-    {
-        if (Features == null || Features.Count == 0)
-            return;
-
-        var res = await Http.PostAsJsonAsync("/sme/api/RoleFeature/update-role-features", Features);
-
-        if (res.IsSuccessStatusCode)
-            Snackbar.Add("Permissions saved", Severity.Success);
-        else
-            Snackbar.Add("Save failed", Severity.Error);
     }
 }
